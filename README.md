@@ -1,12 +1,17 @@
 # dsh-prompt-predict
 
+> **Это форк.** Неофициальная сборка для DeepSeek Harness от [rusliksu](https://github.com/rusliksu).
+> Апстрим: [ferrisching/dsh-prompt-predict](https://github.com/ferrisching/dsh-prompt-predict) (MIT).
+> Что добавлено — в разделе [«Что даёт этот форк»](#-что-даёт-этот-форк--what-this-build-adds).
+> С автором апстрима не связан.
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/ferrisching/dsh-prompt-predict/main/docs/logo.png" width="120" height="120" alt="dsh-prompt-predict logo" />
 </div>
 
 <div align="center">
   <b>Codex-style composer predictions for DeepSeek Harness</b><br />
-  After each reply, your next prompt is ghosted right into the composer — <b>Tab to accept</b>, <b>Esc to dismiss</b>, start typing and it's gone<br /><br />
+  After each reply, your next prompt is ghosted right into the composer — <b>Enter / Tab / → to accept</b>, press again to send, <b>Esc to dismiss</b>, start typing and it's gone<br /><br />
   <a href="https://www.npmjs.com/package/dsh-prompt-predict"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-prompt-predict" /></a>
   <a href="https://www.npmjs.com/package/dsh-prompt-predict"><img alt="npm downloads" src="https://img.shields.io/npm/dm/dsh-prompt-predict" /></a>
   <a href="https://github.com/ferrisching/dsh-prompt-predict/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/ferrisching/dsh-prompt-predict" /></a>
@@ -24,10 +29,11 @@
   <img alt="Preview: after each reply a gray suggestion appears; ↻ for another one, Tab to accept" src="https://raw.githubusercontent.com/ferrisching/dsh-prompt-predict/main/docs/demo.gif" width="760" />
 </div>
 
-`dsh-prompt-predict` is a [DeepSeek Harness](https://www.deepseek.com/) plugin: after every assistant turn it predicts **the message you are most likely to type next** and floats it into the composer as gray ghost text. The suggestion never enters the editor — only pressing `Tab` inserts it, and even then it stays undoable — so a wrong prediction costs you nothing.
+`dsh-prompt-predict` is a [DeepSeek Harness](https://www.deepseek.com/) plugin: after every assistant turn it predicts **the message you are most likely to type next** and floats it into the composer as gray ghost text. The suggestion never enters the editor — only pressing `Enter`, `Tab` or `→` inserts it, and even then it stays undoable — so a wrong prediction costs you nothing.
 
 ## 📑 Table of Contents
 
+- [🇷🇺 Что даёт этот форк](#-что-даёт-этот-форк--what-this-build-adds)
 - [✨ Features](#-features)
 - [🚀 Installation](#-installation)
 - [⌨️ Usage](#-usage)
@@ -40,22 +46,62 @@
 - [⚠️ Known limitations](#-known-limitations)
 - [📄 License](#-license)
 
+## 🇷🇺 Что даёт этот форк / What this build adds
+
+- **Подсказка появляется сразу после хода** — хост генерирует и кэширует предсказание, как только агент ушёл в idle; composer не ждёт сетевого запроса при возврате в окно.
+- **Свои настройки подсказки** — режим «только по Tab» (без автозапуска), собственный системный промпт и дополнительные инструкции к каждой генерации.
+- **Принятие по Enter / Tab / →, отправка вторым нажатием** — повторное нажатие той же клавиши сразу отправляет принятый текст.
+- **Русский интерфейс** — полный словарь клиента (149 ключей) и русские причины ошибок от хоста; язык берётся из локали DSH.
+- **Меньше визуального шума** — строка подсказок `Tab / ↓ / ↻ / Esc` под ghost убрана; остаются только служебные пометки «обрезано» и лимит переключений.
+- **Тесты** — 146 проверок хоста и 214 проверок клиентского рендера.
+
+Поведение отличается от апстрима: смена варианта — по `↓`, кнопки `↻` больше нет.
+
+<details>
+<summary>English</summary>
+
+This fork adds host-side prefetch with a per-session cache (the suggestion is ready the moment the turn ends), configurable system prompt / extra instructions / "Tab only" mode, `Enter` / `Tab` / `→` accept with send-on-second-press, a full Russian UI, and removes the key-hint row under the ghost. Covered by **146** host checks and **214** client-render checks.
+
+</details>
+
 ## ✨ Features
 
 - **Single-line or multi-line** — sentences stay one line; code snippets, lists and multi-paragraph replies keep their line breaks and indentation
 - **A suggestion the moment a reply ends** — gray ghost text rendered at the composer's first character, matching the editor's caret position, font size and line height
-- **Three interactions** — `Tab` to accept, `↻` (or `↓`) for a different suggestion, `Esc` to dismiss; typing hides it, and clearing the draft brings it back
+- **Three ways to accept** — `Enter`, `Tab` or `→` inserts the ghost, and pressing the same key again sends the message; `↓` asks for a different suggestion, `Esc` dismisses; typing hides it, and clearing the draft brings it back
 - **Lightweight context** — only the most recent user/assistant *text*; tool results, attachments and system prompts never leave your machine
 - **Follows the current session model by default** — nothing is hard-coded to a provider, the prediction call reuses whatever model the session itself uses; you can also pin a cheaper model
 - **No repeats, no dead ends** — a repeat of the previous suggestion triggers an automatic "give me a different one"; a reasoning level the real model doesn't support falls back automatically, so you never hit "settings look fine but no suggestion ever appears"
 - **Everything is adjustable** — on/off, provider / model, response timeout, context size and budget, output cap, reasoning effort; changes apply immediately, no DSH restart
 - **Light and dark** — the ghost text, settings page and history follow the system/app colour scheme (`prefers-color-scheme`), with contrast kept at WCAG AA in both
-- **The UI follows your language** — the plugin ships dictionaries for the languages DSH itself supports (Chinese and English), and passes every dictionary it has to the locale service. Switch Settings → Language and the whole plugin UI changes at once, including the ghost hint above the composer **and the validation errors inside Settings** (those are produced by the host, which answers in the language the client sends); no reload needed, and it falls back to Chinese when no locale service is present
+- **The UI follows your language** — the plugin ships dictionaries for Chinese, English and Russian (this fork adds ru), and passes every dictionary it has to the locale service. Switch Settings → Language and the whole plugin UI changes at once, including the ghost hint above the composer **and the validation errors inside Settings** (those are produced by the host, which answers in the language the client sends); no reload needed, and it falls back to Chinese when no locale service is present
 - **Zero runtime dependencies** — plain ESM on both the host and client side
 
 ## 🚀 Installation
 
-The plugin is published on npm. Options are ordered by convenience.
+### Install this fork (GitHub)
+
+The client bundle is committed, so a checkout is ready to pack:
+
+```bash
+git clone --branch ruslan-build https://github.com/rusliksu/dsh-prompt-predict.git
+cd dsh-prompt-predict
+node scripts/build-client.mjs   # optional: the bundle is already in git
+npm pack
+dsh plugin --profile desktop add ./dsh-prompt-predict-0.2.10-ruslan.6.tgz
+```
+
+Or let pnpm fetch the branch directly:
+
+```bash
+dsh plugin --profile desktop add github:rusliksu/dsh-prompt-predict#ruslan-build
+```
+
+Then make sure `"dsh-prompt-predict"` is listed in `dsh.profile.bundles` inside
+`~/.dsh/profiles/<profile>/package.json` (the GUI installer does it for you) and restart DSH.
+
+> The fork does not publish to npm. The npm instructions below describe the upstream
+> package and do **not** include the features listed above.
 
 ### Install inside DSH (recommended)
 
@@ -136,14 +182,13 @@ Then open that profile's `package.json` and add `"dsh-prompt-predict"` to the `d
 ## ⌨️ Usage
 
 1. Chat normally, wait for the assistant to finish its turn, and leave the **composer empty**
-2. About 350 ms later a gray suggestion appears, with `Tab` / `↻` / `Esc` on its right
+2. About 350 ms later a gray suggestion appears (this fork shows just the text — no key-hint row)
 3. Pick what you need:
 
 | Action | Effect |
 |---|---|
-| `Tab` | Accept the whole thing while the composer is focused (only now is it inserted, and it stays undoable) |
-| `↻` (button on the right) | **Reroll** — ask the model for a different suggestion |
-| `↓` | Generate the next suggestion (counts toward *Max switches*); if this round already has later suggestions, move forward through them for free. With no suggestion showing and an empty composer it fetches one immediately. `Ctrl/⌘+↓` works as a fallback |
+| `Enter` / `Tab` / `→` | Accept the whole thing while the composer is focused (only now is it inserted, and it stays undoable). Press the same key again right away — the message is sent |
+| `↓` | **Reroll** — Generate the next suggestion (counts toward *Max switches*); if this round already has later suggestions, move forward through them for free. With no suggestion showing and an empty composer it fetches one immediately. `Ctrl/⌘+↓` works as a fallback. The `↻` button is gone in this fork |
 | `↑` | Return to the previous suggestion in this round (free) |
 | `Ctrl/⌘+Shift+Space` | Trigger a prediction by hand; rerolls when one is already showing |
 | `Esc` | Dismiss this one |
@@ -164,7 +209,7 @@ Suggestions only appear when the composer is empty and the session isn't running
 | Context budget (advanced) | Character cap sent to the helper call, 1000–20000 | 6000 |
 | Output length | How long a suggestion should be, in **characters** (20–400) — no token maths. Pinning a Latin-script language also shows the equivalent in words; CJK stays in characters because word segmentation is undefined there. The host derives a generous token safety cap from it (per language) and writes the character budget into the prompt; a reply that still gets cut is retried with more room and marked **cut off · raise the output length** | 120 |
 | Keep multi-line formatting | Allow code snippets/lists to keep line breaks and indentation (off = always one line) | On |
-| Switchable suggestions | When on, ↓ generates the next suggestion and ↑ returns to the previous one (kept in this round's history); off disables arrow switching and the ↻ button | On |
+| Switchable suggestions | When on, ↓ generates the next suggestion and ↑ returns to the previous one (kept in this round's history); off disables arrow switching | On |
 | Max switches | Max new suggestions generated per round (0–10; `0` = unlimited). Moving back with ↑ does not count | 3 |
 | Reasoning effort (advanced) | Options are **generated from the model actually in use** (the session's model when following it); unsupported levels never appear | Off (fastest, cheapest) |
 | Suggestion language | `Auto` follows the conversation; pin a language and every suggestion is written in it. 14 mainstream languages are listed up front, the rest fold behind **More languages…**, and languages with regional variants get a second **Region** dropdown: Simplified Chinese (Mainland China / Singapore / Malaysia), Traditional Chinese (Taiwan / Hong Kong), English (US / UK / Australia / Canada), Portuguese (Brazil / Portugal), Spanish (Spain / Latin America (neutral) / Mexico / Argentina / Colombia), French (France / Canada), German (Germany / Austria / Switzerland), Dutch (Netherlands / Belgium). The chosen variant is named explicitly in the prompt (e.g. *Traditional Chinese (Taiwan)*, *British English*) | Auto |
@@ -251,7 +296,7 @@ The tests need no DSH runtime: a fake ctx plus a local HTTP server cover route r
 ## 🔐 Security and cost
 
 - **One** small helper call per assistant turn by default; an extra attempt only happens when the reply hits the length limit, the reasoning level needs downgrading, or a suggestion needs rerolling — **four calls is the hard ceiling** (primary, reasoning-level fallback, length retry, reroll), and they share a single timeout budget
-- Suggestions are **not written to the session log**; only after you accept with `Tab` and send does the text become a real message
+- Suggestions are **not written to the session log**; only after you accept with `Enter`/`Tab`/`→` and send does the text become a real message
 - Only trimmed user/assistant plain text is sent — tool results, attachments and system prompts never leave the machine
 - Both the settings page and the suggestion endpoint sit behind DSH's own browser-cookie authentication
 
@@ -284,10 +329,10 @@ The tests need no DSH runtime: a fake ctx plus a local HTTP server cover route r
 - Raise *Output length*. A capped reply is already retried once with more room before the marker appears.
 - Reasoning models can spend a large part of the budget before writing any text; if this happens often, raise the length or keep *Reasoning effort* off (the default).
 
-**Tab does nothing**
+**Enter / Tab / → does nothing**
 
-- `Tab` is intercepted only while a suggestion is visible; with no ghost it behaves normally.
-- Click into the composer first — the overlay is positioned over the editor's caret box, and `Tab` acts on the focused editor.
+- These keys (and the send-on-second-press logic) are intercepted only while a suggestion is visible; with no ghost they behave normally.
+- Click into the composer first — the overlay is positioned over the editor's caret box, and the keys act on the focused editor.
 
 **Ghost text sits on top of what I typed**
 
