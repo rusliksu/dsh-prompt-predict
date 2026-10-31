@@ -1,7 +1,7 @@
 {
   "name": "dsh-prompt-predict",
-  "version": "0.2.10",
-  "description": "输入框提示词联想插件：助手回复结束后预测你的下一句话，以灰色 ghost text 浮在输入框里，Tab 采纳、Esc 忽略 ｜ Codex-style composer prompt predictions for DeepSeek Harness: your next message ghosted into the composer, accepted with Tab.",
+  "version": "0.2.10-ruslan.6",
+  "description": "Форк dsh-prompt-predict для DeepSeek Harness: предзагрузка подсказки в конце хода, свой системный промпт и доп. инструкции, режим «только по Tab», принятие по Enter/Tab/→ и отправка вторым нажатием, русский интерфейс ｜ Fork of dsh-prompt-predict: host-side prefetch, custom prompt settings, Enter/Tab/→ accept with send-on-second-press, Russian UI.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {

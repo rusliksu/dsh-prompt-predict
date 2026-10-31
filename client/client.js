@@ -22,7 +22,7 @@ window.__ModuleLoader__.load({
       zh: {
         "effort.off": "关闭", "effort.minimal": "最小", "effort.low": "低",
         "effort.medium": "中", "effort.high": "高", "effort.max": "最大",
-        "ghost.acceptHint": "Tab 采纳 · Alt+→ 逐段采纳",
+        "ghost.acceptHint": "Enter/Tab/→ 采纳 · 再按一次发送",
         "ghost.reroll": "换一条建议",
         "ghost.dismiss": "Esc 忽略",
         "ghost.regenHint": "↓ 重新生成",
@@ -32,8 +32,15 @@ window.__ModuleLoader__.load({
         "settings.desc": "助手回复结束后，在输入框里直接给出灰色建议（Tab 采纳、Esc 忽略、开始输入自动消失）。",
         "settings.saveHint": "注意：所有设置修改后都需要点击「保存」才会生效。",
         "settings.enable": "启用联想",
+        "settings.auto": "仅按 Tab 时生成",
+        "settings.autoHint": "开启后，回复结束不自动生成建议；在输入框按 Tab 生成并插入。",
+        "settings.systemPrompt": "联想系统提示词",
+        "settings.systemPromptHint": "留空则使用内置提示词；点「默认」把内置提示词填入以便修改。",
+        "settings.extraInstructions": "附加指令",
+        "settings.extraInstructionsHint": "追加到系统提示词：风格、长度、称呼、需要避免的内容。",
+        "settings.default": "默认",
         "settings.on": "已开启",
-        "settings.shortcutHint": "快捷键：Ctrl/⌘+Shift+Space 手动触发；Tab 采纳，↓ 重新生成，Esc 忽略",
+        "settings.shortcutHint": "快捷键：Ctrl/⌘+Shift+Space 手动触发；Enter/Tab/→ 采纳（再按一次发送），↓ 重新生成，Esc 忽略",
         "settings.off": "已关闭",
         "settings.provider": "提供商",
         "settings.refreshModels": "刷新",
@@ -162,7 +169,7 @@ window.__ModuleLoader__.load({
       en: {
         "effort.off": "Off", "effort.minimal": "Minimal", "effort.low": "Low",
         "effort.medium": "Medium", "effort.high": "High", "effort.max": "Max",
-        "ghost.acceptHint": "Tab to accept · Alt+→ piece by piece",
+        "ghost.acceptHint": "Enter/Tab/→ to accept · press again to send",
         "ghost.reroll": "Suggest another",
         "ghost.dismiss": "Esc to dismiss",
         "ghost.regenHint": "↓ regenerate",
@@ -172,8 +179,15 @@ window.__ModuleLoader__.load({
         "settings.desc": "Shows a gray suggestion in the composer right after each reply (Tab to accept, Esc to dismiss, start typing and it goes away).",
         "settings.saveHint": "Note: all settings take effect only after you click Save.",
         "settings.enable": "Enable predictions",
+        "settings.auto": "Only on demand",
+        "settings.autoHint": "When on, no suggestion appears after a reply — press Tab in the composer to generate and insert one.",
+        "settings.systemPrompt": "Predictor system prompt",
+        "settings.systemPromptHint": "Leave empty to use the built-in prompt; press “Default” to load it for editing.",
+        "settings.extraInstructions": "Extra instructions",
+        "settings.extraInstructionsHint": "Appended to the system prompt: style, length, tone, what to avoid.",
+        "settings.default": "Default",
         "settings.on": "On",
-        "settings.shortcutHint": "Shortcuts: Ctrl/⌘+Shift+Space to trigger; Tab accepts, ↓ regenerates, Esc dismisses",
+        "settings.shortcutHint": "Shortcuts: Ctrl/⌘+Shift+Space to trigger; Enter/Tab/→ accepts (again sends), ↓ regenerates, Esc dismisses",
         "settings.off": "Off",
         "settings.provider": "Provider",
         "settings.refreshModels": "Refresh",
@@ -299,6 +313,157 @@ window.__ModuleLoader__.load({
         "dock.paused": "Prediction paused · resumes in {time}",
         "dock.failureHint": "Prediction failed: {reason} (shown after two failures in a row; details in Settings → Prompt suggestions)",
       },
+      ru: {
+        "effort.off": "Выкл.",
+        "effort.minimal": "Минимальная",
+        "effort.low": "Низкая",
+        "effort.medium": "Средняя",
+        "effort.high": "Высокая",
+        "effort.max": "Максимальная",
+        "ghost.acceptHint": "Enter/Tab/→ — принять · ещё раз — отправить",
+        "ghost.reroll": "Другой вариант",
+        "ghost.dismiss": "Esc — скрыть",
+        "ghost.regenHint": "↓ — заново",
+        "ghost.truncated": "обрезано · увеличьте длину",
+        "ghost.truncatedHint": "обрезано · увеличьте «Длину подсказки»: Настройки → Подсказки → Дополнительно",
+        "settings.title": "Подсказки в поле ввода",
+        "settings.desc": "После ответа в поле ввода появляется серая подсказка (Tab — принять, Esc — скрыть; при наборе исчезает).",
+        "settings.saveHint": "Важно: настройки применяются только после нажатия «Сохранить».",
+        "settings.enable": "Включить подсказки",
+        "settings.auto": "Только по Tab",
+        "settings.autoHint": "Включено — подсказка не генерируется после ответа; нажмите Tab в поле ввода, чтобы получить и вставить её.",
+        "settings.systemPrompt": "Системный промпт подсказок",
+        "settings.systemPromptHint": "Пусто — встроенный промпт. Кнопка «Стандартный» вставит его для правки.",
+        "settings.extraInstructions": "Доп. инструкции",
+        "settings.extraInstructionsHint": "Добавляются к системному промпту: стиль, длина, обращение, чего избегать.",
+        "settings.default": "Стандартный",
+        "settings.on": "Включено",
+        "settings.shortcutHint": "Горячие клавиши: Ctrl/⌘+Shift+Space — вызвать; Enter/Tab/→ — принять (ещё раз — отправить), ↓ — заново, Esc — скрыть",
+        "settings.off": "Выключено",
+        "settings.provider": "Провайдер",
+        "settings.refreshModels": "Обновить",
+        "settings.model": "Модель",
+        "settings.followSession": "Следовать модели текущей сессии",
+        "settings.modelHint": "По умолчанию берётся модель текущей сессии; можно закрепить быструю — так экономнее.",
+        "settings.providerError": "Провайдер недоступен: {detail}",
+        "settings.providerUnavailableShort": "недоступен",
+        "settings.catalogError": "Не удалось загрузить каталог провайдеров: {detail}",
+        "settings.catalogFailed": "Не удалось загрузить каталог провайдеров",
+        "settings.noModels": "Нет доступных моделей",
+        "settings.advanced": "Дополнительно",
+        "settings.timeout": "Таймаут ответа",
+        "settings.timeoutUnit": "с (1–60)",
+        "settings.contextSize": "Объём контекста",
+        "settings.contextSmall": "Меньше: последние 3 сообщения",
+        "settings.contextStandard": "Стандарт: последние 8 (по умолчанию)",
+        "settings.contextLarge": "Больше: последние 12",
+        "settings.contextHint": "Больше — точнее, но медленнее",
+        "settings.maxChars": "Бюджет контекста",
+        "settings.maxCharsHint": "лимит символов (1000–20000), меньше — экономнее по токенам",
+        "settings.outputChars": "Длина подсказки",
+        "settings.outputCharsHint": "20–400 символов, без расчёта токенов",
+        "settings.multiline": "Сохранять многострочность",
+        "settings.multilineHint": "Не ломать переносы и отступы в коде и списках; выключено — одна строка (без нескольких вариантов)",
+        "settings.switchEnabled": "Переключение подсказок",
+        "settings.switchEnabledHint": "Включено: ↓ — следующая подсказка, ↑ — предыдущая; выключено — стрелки не переключают",
+        "settings.switchLimit": "Лимит переключений",
+        "settings.switchLimitHint": "сколько новых подсказок генерировать за круг (0–10; 0 = без ограничений); возврат по ↑ не считается",
+        "dock.switchLimit": "Лимит переключений исчерпан ({limit}); нажмите ↑, чтобы вернуться",
+        "ghost.nextHint": "↓ — следующая",
+        "ghost.prevHint": "↑ — предыдущая",
+        "settings.outputCharsHintFull": "Длина считается в символах. Из неё выводится щедрый лимит токенов; если ответ всё равно обрезан, подсказка об этом скажет и запрос один раз повторится с большим запасом",
+        "settings.outputCharsWords": " (~{words} слов)",
+        "settings.effort": "Глубина рассуждений",
+        "settings.effortDefault": "Как в модели по умолчанию",
+        "settings.effortDefaultNoLevels": "Как в модели по умолчанию (у неё нет настраиваемых уровней)",
+        "settings.effortFastest": "(быстрее и дешевле всего)",
+        "settings.effortHint": "Для подсказок лучше помельче: слишком глубокая тратит токены на рассуждения",
+        "settings.effortFromSession": "Уровни собраны по модели текущей сессии: {provider} / {model}",
+        "settings.effortNoSession": "Уровни собраны по модели текущей сессии (сейчас модель недоступна)",
+        "settings.save": "Сохранить",
+        "settings.saving": "Сохраняю…",
+        "settings.reset": "Сбросить настройки",
+        "settings.saved": "Сохранено — действует сразу",
+        "settings.saveFailed": "Не удалось сохранить",
+        "settings.enabled": "Подсказки включены",
+        "settings.disabled": "Подсказки выключены",
+        "settings.actionFailed": "Не удалось выполнить действие",
+        "settings.resetDone": "Настройки сброшены",
+        "settings.loading": "Загружаю…",
+        "settings.pause": "Пауза",
+        "settings.pauseStart": "Поставить на паузу",
+        "settings.pauseResume": "Продолжить сейчас",
+        "settings.pauseLeft": "Пауза — осталось {time} (продолжится автоматически)",
+        "settings.pauseHint": "На {minutes} мин. без вызовов",
+        "settings.pauseHintFull": "Нужно, когда подсказки какое-то время не нужны: пока пауза, вызовов нет, потом всё возобновляется само",
+        "settings.test": "Проверить сейчас",
+        "settings.testing": "Запрашиваю…",
+        "settings.testNeedSession": "Сначала откройте диалог — у страницы настроек нет контекста сессии",
+        "settings.testResult": "Пример подсказки: {text}",
+        "settings.testMeta": "{provider} / {model} · {ms} мс",
+        "settings.checkUpdate": "Проверить обновления",
+        "settings.updateChecking": "Проверяю…",
+        "settings.updateLatest": "У вас последняя версия",
+        "settings.updateFound": "Доступна новая версия v{version}",
+        "settings.updateCommand": "Команда обновления: {command}",
+        "settings.updateStep1": "Шаги: 1. Полностью закройте приложение (Cmd+Q) — во время работы обновление не установится",
+        "settings.updateStep2": "2. Выполните команду выше в терминале (профиль подставлен для этого окружения; замените, если у вас свой профиль)",
+        "settings.updateStep3": "3. Откройте приложение заново; изменения только в клиенте подхватятся перезагрузкой окна",
+        "settings.updateOtherEnv": "Чтобы поставить и в другом окружении, повторите команду с другим профилем (desktop ↔ web).",
+        "settings.updateCopy": "Копировать команду",
+        "settings.updateCopied": "Скопировано",
+        "settings.updateError": "Проверка не удалась: registry.npmjs.org недоступен",
+        "settings.updateAutoFailed": "Автопроверка обновлений не удалась; нажмите «Проверить обновления», чтобы повторить.",
+        "run.effortDropped": "глубина рассуждений понижена автоматически",
+        "run.dedupRetry": "запрошен другой вариант",
+        "run.truncated": "упёрлось в лимит длины",
+        "run.ms": "мс",
+        "settings.truncatedWarn": "Последняя подсказка упёрлась в лимит длины: увеличьте «Длину подсказки» выше (например, до 200 символов), нажмите «Сохранить» и вызовите подсказку снова.",
+        "run.session": "сессия {name}",
+        "run.failedShort": "ошибка — {reason}",
+        "run.partialChars": "получено символов: {count}",
+        "run.partialCharsOne": "получен 1 символ",
+        "settings.historyTitle": "Последние подсказки ({count}/{limit})",
+        "settings.historyHint": "Нажмите на строку, чтобы раскрыть текст подсказки (хранится локально, никуда не отправляется)",
+        "settings.historyToggle": "Раскрыть / свернуть текст подсказки",
+        "settings.historyExpand": "Показать все",
+        "settings.historyCollapse": "Свернуть",
+        "settings.historyClear": "Очистить",
+        "settings.historyCleared": "Очищено.",
+        "settings.historyUndo": "Отменить",
+        "settings.historyCopy": "Копировать",
+        "settings.historyInsert": "Вставить",
+        "settings.historyInserted": "Вставлено",
+        "settings.historyAccepted": "Принято",
+        "settings.historyCopied": "Скопировано",
+        "settings.historyNoText": "Для этого запуска текст подсказки не сохранился (старая запись)",
+        "settings.historyEmpty": "Записей пока нет: вызовите подсказку — здесь появятся последние с сессией, моделью, задержкой и флагами.",
+        "settings.historyOff": "История выключена (0 записей): текст подсказок локально не сохраняется.",
+        "settings.predictionSection": "Что предсказывать",
+        "settings.suggestionLanguage": "Язык подсказок",
+        "settings.suggestionLanguageHint": "Как в диалоге или зафиксировать",
+        "settings.suggestionLanguageHintFull": "По умолчанию определяется по диалогу; зафиксируйте язык, чтобы подсказки всегда были на нём (для языков с региональными вариантами появится выбор региона)",
+        "settings.languageAuto": "Авто (по диалогу)",
+        "settings.languageMore": "Ещё языки… (ещё {count})",
+        "settings.languageRegion": "Регион",
+        "settings.historySize": "Размер истории",
+        "settings.historySizeHint": "сколько последних подсказок хранить (0–50; 0 — выключить историю). Хранится в {storage}; только локально, никуда не отправляется, переживает перезапуск",
+        "storage.electron": "собственное хранилище приложения (Electron renderer)",
+        "storage.web": "localStorage браузера",
+        "dock.noSuggestion": "Прогноз не вернул пригодную подсказку",
+        "dock.rerollFailed": "Не удалось получить другой вариант",
+        "dock.generatingAny": "Генерирую подсказку…",
+        "dock.manualFailed": "Не удалось получить новую подсказку: {reason}",
+        "dock.discarded": "Результат отброшен: {why}",
+        "dock.whyComposing": "составление IME так и не завершилось",
+        "dock.whyTyping": "во время запроса замечен ввод",
+        "dock.whyDraft": "в поле ввода уже есть текст",
+        "dock.openSettings": "Открыть настройки",
+        "dock.copySettingsPath": "Копировать путь к настройкам",
+        "dock.settingsPath": "Настройки → Подсказки в поле ввода",
+        "dock.paused": "Предсказание на паузе · продолжится через {time}",
+        "dock.failureHint": "Предсказание не удалось: {reason} (показывается после двух ошибок подряд; подробности — Настройки → Подсказки)",
+      },
     };
 
     // 建议语言：auto = 跟随对话；其余候选由 Host 提供（status.languages），
@@ -414,31 +579,34 @@ window.__ModuleLoader__.load({
      * 已知 key 去问翻译、跟词典比对。
      */
     function currentLang() {
+      // Локаль берём из сервиса DSH (в профиле preference: ru), а не из чужого t —
+      // иначе часть строк приходила из zh, часть из en.
       try {
         var snap = localeService && typeof localeService.getSnapshot === "function" ? localeService.getSnapshot() : null;
         var v = snap && (snap.active || snap.locale || snap.id);
         if (typeof v === "string" && v) {
           var low = v.toLowerCase();
-          return low.indexOf("zh") === 0 ? "zh" : "en";   // 与 DSH 界面语言保持一致
+          if (low.indexOf("ru") === 0) return "ru";
+          return low.indexOf("zh") === 0 ? "zh" : "en";
         }
-      } catch { /* 下面再试比对 */ }
+      } catch { /* ниже — по словарю */ }
       try {
         if (boundTranslate) {
           var probe = boundTranslate("settings.title");
+          if (DICT.ru && probe === DICT.ru["settings.title"]) return "ru";
           if (DICT.en && probe === DICT.en["settings.title"]) return "en";
         }
       } catch { /* 保守回中文 */ }
       return "zh";
     }
     // 界面语言对应的 BCP-47 标记：时间等格式化跟界面语言走，而不是系统语言。
-    var UI_LOCALES = { zh: "zh-CN", en: "en-US" };
+    var UI_LOCALES = { zh: "zh-CN", en: "en-US", ru: "ru-RU" };
     function uiLocale() { return UI_LOCALES[currentLang()] || undefined; }
 
     function tt(t, key, vars) {
-      var fn = t || boundTranslate || fallbackTranslate;
-      var text = null;
-      try { text = fn(key); } catch { text = null; }
-      if (typeof text !== "string" || !text || text === key) text = fallbackTranslate(key);
+      // lokal: берём свой словарь по текущей локали, а не чужой t из слота —
+      // из-за него часть строк приходила из zh, часть из en.
+      var text = fallbackTranslate(key);
       if (vars) {
         text = text.replace(/\{(\w+)\}/g, function (m, k) {
           return vars[k] === undefined || vars[k] === null ? m : String(vars[k]);
@@ -490,6 +658,7 @@ window.__ModuleLoader__.load({
         label: { width: 110, fontSize: 13, color: token("label-secondary", c.label), flex: "none" },
         select: { flex: 1, padding: "7px 10px", border: "1px solid " + token("border-l1", c.border), borderRadius: 8, fontSize: 13, color: token("label-primary", c.inputText), background: token("bg-base", c.inputBg), maxWidth: 320 },
         input: { width: 90, flex: "none", padding: "7px 10px", border: "1px solid " + token("border-l1", c.border), borderRadius: 8, fontSize: 13, color: token("label-primary", c.inputText), background: token("bg-base", c.inputBg) },
+        textarea: { width: "100%", boxSizing: "border-box", padding: "8px 10px", border: "1px solid " + token("border-l1", c.border), borderRadius: 8, fontSize: 13, lineHeight: 1.6, color: token("label-primary", c.inputText), background: token("bg-base", c.inputBg), fontFamily: "inherit", resize: "vertical" },
         btnPrimary: { padding: "8px 16px", flex: "none", border: 0, borderRadius: 8, background: token("state-business-primary", c.primary), color: c.primaryText, cursor: "pointer", fontSize: 13 },
         btnGhost: { padding: "8px 16px", flex: "none", border: "1px solid " + token("border-l1", c.border), borderRadius: 8, background: token("bg-layer-2", c.chipBg), color: token("label-primary", c.chipText), cursor: "pointer", fontSize: 13 },
         toggleTrack: function (on) { return { width: 38, height: 22, borderRadius: 22, border: 0, cursor: "pointer", padding: 2, flex: "none", boxSizing: "border-box", overflow: "hidden", background: on ? c.primary : c.trackOff, transition: "background .15s" }; },
@@ -1132,49 +1301,17 @@ window.__ModuleLoader__.load({
           "data-prompt-predict-text": "true",
           style: { color: token("label-tertiary", colors().ghostText) },
         }, suggestion),
-        busy ? null : h("span", {
+        // lokal: строку подсказок (Tab / ↓ / ↻ / Esc) убрали — она мешала и отъедала место.
+        // Оставляем только служебные сообщения: лимит переключений и «обрезано».
+        busy || (!notice && !truncated) ? null : h("span", {
           style: { display: "inline-flex", alignItems: "center", gap: 6, marginInlineStart: 8, whiteSpace: "nowrap", verticalAlign: "middle" },
         },
-          h("button", {
-            type: "button", onClick: onAccept,
-            title: tt(t, "ghost.acceptHint"), "aria-label": tt(t, "ghost.acceptHint"),
-            style: {
-              pointerEvents: "auto", padding: "0 9px", height: 24, borderRadius: 6,
-              border: "1px solid " + token("border-l1", colors().border), background: token("bg-layer-2", colors().softBg),
-              color: token("label-secondary", colors().chipText), fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", cursor: "pointer",
-            },
-          }, "Tab"),
-          canPrev
-            ? h("span", {
-              "data-prompt-predict-prev-hint": "true",
-              title: tt(t, "ghost.prevHint"),
-              style: { color: token("label-tertiary", colors().ghostHint), fontSize: 11, whiteSpace: "nowrap" },
-            }, tt(t, "ghost.prevHint"))
-            : null,
-          nextAction === "next" || nextAction === "regen"
-            ? h("span", {
-              "data-prompt-predict-replace-hint": "true",
-              title: tt(t, nextAction === "next" ? "ghost.nextHint" : "ghost.regenHint"),
-              style: { color: token("label-tertiary", colors().ghostHint), fontSize: 11, whiteSpace: "nowrap" },
-            }, tt(t, nextAction === "next" ? "ghost.nextHint" : "ghost.regenHint"))
-            : null,
           notice
             ? h("span", {
               "data-prompt-predict-notice": "true",
               style: { color: token("label-tertiary", colors().ghostHint), fontSize: 10, whiteSpace: "nowrap" },
             }, notice)
             : null,
-          onReroll
-            ? h("button", {
-              type: "button", onClick: onReroll, title: tt(t, "ghost.reroll"), "aria-label": tt(t, "ghost.reroll"),
-              style: {
-                pointerEvents: "auto", width: 24, height: 24, padding: 0, borderRadius: 6,
-                border: "1px solid var(--dsw-alias-border-l1, " + colors().border + ")", background: "var(--dsw-alias-bg-secondary, " + colors().softBg + ")",
-                color: token("label-secondary", colors().chipText), fontSize: 12, lineHeight: 1, cursor: "pointer",
-              },
-            }, "↻")
-            : null,
-          h("span", { style: { color: token("label-tertiary", colors().ghostHint), fontSize: 11, whiteSpace: "nowrap" } }, tt(t, "ghost.dismiss")),
           truncated
             ? h("span", {
               // 覆盖层整体 pointer-events:none：这里单独放开，悬停时把设置路径直接展开在文字里
@@ -1328,6 +1465,8 @@ window.__ModuleLoader__.load({
       var _me = useState(""), manualError = _me[0], setManualError = _me[1];   // 手动换一条失败的原因
       var _mk = useState("failed"), manualErrorKind = _mk[0], setManualErrorKind = _mk[1];
       var _en = useState(true), enabled = _en[0], setEnabled = _en[1];
+      // lokal: auto=false — режим «только по Tab», автоподсказок после ответа нет.
+      var _am = useState(true), autoMode = _am[0], setAutoMode = _am[1];
       var _swi = useState(true), switchEnabled = _swi[0], setSwitchEnabled = _swi[1];
       var switchLimitRef = useRef(3);
       var suggestionHistoryRef = useRef([]);
@@ -1350,6 +1489,9 @@ window.__ModuleLoader__.load({
       var suppressPredictionUntil = useRef(0);   // 粘贴后短暂禁止自动预测，避免读不到正文时误换一条
       var hadAttachmentsRef = useRef(false);   // 用于「删除附件」时清掉残留建议
       var lastReplaceAt = useRef(0);   // ↓ 的 keydown/keyup 双保险去重
+      // lokal: Enter/Tab/→ принимают подсказку; повторное нажатие той же клавиши — отправка.
+      var acceptedTextRef = useRef("");   // текст, вставленный последним принятием
+      var acceptedAtRef = useRef(0);     // когда вставили: окно «двойного нажатия»
       // 粘贴/拖入图片或文件：即使 DOM 里检测不到附件，也视为「有内容」。
       var hasInputAttachments = function () {
         var value = composerState;
@@ -1491,6 +1633,7 @@ window.__ModuleLoader__.load({
       useEffect(function () {
         api("status").then(function (j) {
           setEnabled(!(j && j.effective && j.effective.enabled === false));
+          setAutoMode(!(j && j.effective && j.effective.auto === false));
           setSwitchEnabled(!(j && j.effective && j.effective.switchEnabled === false));
           switchLimitRef.current = Math.min(10, Math.max(0, Math.floor(Number(j && j.effective && j.effective.switchLimit) || 0)));
           if (j && j.effective && typeof j.effective.historySize === "number") {
@@ -1503,6 +1646,7 @@ window.__ModuleLoader__.load({
         var changed = function (event) {
           var on = event.detail?.enabled !== false;
           setEnabled(on);
+          if (event.detail && typeof event.detail.auto === "boolean") setAutoMode(event.detail.auto);
           if (event.detail && typeof event.detail.switchEnabled === "boolean") setSwitchEnabled(event.detail.switchEnabled);
           if (event.detail && typeof event.detail.switchLimit === "number") {
             switchLimitRef.current = Math.min(10, Math.max(0, Math.floor(event.detail.switchLimit)));
@@ -1645,6 +1789,8 @@ window.__ModuleLoader__.load({
 
       useEffect(function () {
         if (!enabled) return;
+        // Режим «только по Tab»: автоподсказку не считаем, ждём Tab в поле ввода.
+        if (!autoMode) return;
         if (running) {
           armed.current = true;
           dismissedByDraft.current = false;
@@ -1694,7 +1840,7 @@ window.__ModuleLoader__.load({
           controller.abort();
           if (abortRef.current === controller) abortRef.current = null;
         };
-      }, [sessionId, running, blank, removed, draft, enabled, draftTick]);
+      }, [sessionId, running, blank, removed, draft, enabled, autoMode, draftTick]);
 
       // 直接盯编辑器 DOM：贴图、删图、打字、拖拽都会触发；不依赖 input 事件与正文可读性。
       // 只要我们自己的插入不在进行中，任何内容变化都立刻收起建议。
@@ -1928,6 +2074,9 @@ window.__ModuleLoader__.load({
           var span = inputActions.captureInsertion();
           selfInsertAt.current = Date.now();
           if (!inputActions.insertText(visibleSuggestion, span)) return false;
+          // lokal: запоминаем, что именно вставили и когда — второе нажатие отправит сообщение.
+          acceptedTextRef.current = visibleSuggestion;
+          acceptedAtRef.current = Date.now();
           patchLastRun(sessionId, { suggestion: suggestion, accepted: true });
           suggestionHistoryRef.current = [];
           historyIndexRef.current = 0;
@@ -2009,10 +2158,22 @@ window.__ModuleLoader__.load({
             typedDuringRequest.current = true;
             setTypedTick(function (n) { return n + 1; });
           }
-          if (event.key !== "Tab" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
-          if (!accept()) return;
-          event.preventDefault();
-          event.stopPropagation();
+          // lokal: принять подсказку можно Enter, Tab или →.
+          var isAcceptKey = event.key === "Enter" || event.key === "Tab" || event.key === "ArrowRight";
+          if (!isAcceptKey || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+          if (accept()) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+          // Режим «только по Tab»: Tab в пустом поле считает подсказку (вставка — следующим Tab).
+          if (event.key === "Tab" && !autoMode && !running && draft.trim() === "" && !pastedAttachment
+            && !hasInputAttachments() && !hasForeignDraft(sessionId)) {
+            if (runRequest(false)) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }
         };
         // 除了可打印键，粘贴 / 输入法合成 / 任何文本输入 / 拖拽落字 也算「用户开始输入」。
         // 只监听 keydown 的话，中文输入法（key=Process）和 Cmd+V 都躲得过去，灰字会压在正文上。
@@ -2033,7 +2194,60 @@ window.__ModuleLoader__.load({
           inputEvents.forEach(function (type) { inputTarget.removeEventListener(type, hideOnInput, true); });
           window.removeEventListener("keydown", onKey, true);
         };
-      }, [visibleSuggestion, accept, switchEnabled, sessionId]);
+      }, [visibleSuggestion, accept, switchEnabled, sessionId, autoMode, running, draft, pastedAttachment]);
+
+      // lokal: второе нажатие Enter/Tab/→ сразу после принятия отправляет сообщение —
+      // так же, как в прежней сборке. Слушатель живёт всегда: после accept() подсказка
+      // исчезает, и эффект выше со своим onKey размонтируется.
+      useEffect(function () {
+        var sendComposer = function () {
+          if (inputActions && typeof inputActions.submit === "function") {
+            try { inputActions.submit(); return true; } catch { /* пробуем запасные пути */ }
+          }
+          var ed = findEditor(sessionId);
+          if (ed) {
+            try {
+              ed.focus();
+              ed.dispatchEvent(new KeyboardEvent("keydown", {
+                key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true,
+              }));
+              return true;
+            } catch { /* ниже — кнопка отправки */ }
+          }
+          try {
+            var scope = findComposerScope(sessionId) || document;
+            var buttons = scope.querySelectorAll("button");
+            for (var i = 0; i < buttons.length; i += 1) {
+              var node = buttons[i];
+              var label = String(node.getAttribute("aria-label") || "") + " " + String(node.title || "");
+              if (/отправ|send|发送/i.test(label)) { node.click(); return true; }
+            }
+          } catch { /* кнопки не нашли — просто не отправляем */ }
+          return false;
+        };
+        var onSecond = function (event) {
+          if (event.isComposing) return;
+          if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+          var key = event.key;
+          if (key !== "Enter" && key !== "Tab" && key !== "ArrowRight") return;
+          var text = acceptedTextRef.current;
+          if (!text) return;
+          // Окно двойного нажатия: долгая пауза — уже обычная отправка/навигация.
+          if (Date.now() - acceptedAtRef.current > 1500) { acceptedTextRef.current = ""; return; }
+          if (!isComposerFocused(sessionId, event)) return;
+          // Если текст редактора читается и уже другой — пользователь начал править, не отправляем.
+          var current = editorText(sessionId);
+          if (current && current !== text) { acceptedTextRef.current = ""; return; }
+          acceptedTextRef.current = "";
+          acceptedAtRef.current = 0;
+          if (sendComposer()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        };
+        window.addEventListener("keydown", onSecond, true);
+        return function () { window.removeEventListener("keydown", onSecond, true); };
+      }, [sessionId, inputActions]);
 
       // 建议直接以灰色 ghost text 覆盖在 Lexical 输入框首字符处。
       if (!enabled) return null;
@@ -2135,6 +2349,11 @@ window.__ModuleLoader__.load({
       var _lo = useState(DEFAULT_LANGUAGE_CODES), languageCodes = _lo[0], setLanguageCodes = _lo[1];
       var _lx = useState(false), languagesExpanded = _lx[0], setLanguagesExpanded = _lx[1];
       var _ef = useState("off"), effort = _ef[0], setEffort = _ef[1];
+      // lokal: свои настройки подсказок — режим «только по Tab», свой системный промпт и доп. инструкции.
+      var _am = useState(true), autoMode = _am[0], setAutoMode = _am[1];
+      var _sp = useState(""), sysPrompt = _sp[0], setSysPrompt = _sp[1];
+      var _ei = useState(""), extraInstr = _ei[0], setExtraInstr = _ei[1];
+      var _ds = useState(""), defaultSystem = _ds[0], setDefaultSystem = _ds[1];
       var _eo = useState([]), effortOptions = _eo[0], setEffortOptions = _eo[1];
       var _hist = useState(runHistory.slice()), history = _hist[0], setHistory = _hist[1];
       var _open = useState(null), openKey = _open[0], setOpenKey = _open[1];   // null = 默认展开第一条
@@ -2268,6 +2487,10 @@ window.__ModuleLoader__.load({
           var stored = trimHistoryToLimit(historyLimit);
           setHistory(stored);
           setEffort(eff.reasoningEffort || "off");
+          setAutoMode(eff.auto !== false);
+          setSysPrompt(typeof eff.systemPrompt === "string" ? eff.systemPrompt : "");
+          setExtraInstr(typeof eff.extraInstructions === "string" ? eff.extraInstructions : "");
+          setDefaultSystem(typeof j.defaultSystem === "string" ? j.defaultSystem : "");
           setDirty(false);
         }).catch(function () { });
         api("catalog").then(function (j) {
@@ -2346,6 +2569,9 @@ window.__ModuleLoader__.load({
           historySize: historySize,
           suggestionLanguage: suggestionLanguage,
           reasoningEffort: effort,
+          auto: autoMode,
+          systemPrompt: sysPrompt,
+          extraInstructions: extraInstr,
         }).then(function (j) {
           if (j && j.ok) { trimHistoryToLimit(historySize); notifySettings(j.effective); setMsg({ ok: true, text: tt(t, "settings.saved") }); setDirty(false); loadAll(); }
           else setMsg({ ok: false, text: (j && j.reason) || tt(t, "settings.saveFailed") });
@@ -2450,6 +2676,39 @@ window.__ModuleLoader__.load({
             h("span", { style: SS.toggleThumb(enabled) })),
           h("span", { style: SS.muted }, enabled ? tt(t, "settings.on") : tt(t, "settings.off"))),
         h("p", { style: SS.muted }, tt(t, "settings.shortcutHint")),
+
+        // lokal: «только по Tab» — обратный флаг auto: включённый переключатель = без автоподсказок.
+        h("div", { style: SS.row },
+          h("span", { style: SS.label }, tt(t, "settings.auto")),
+          h("button", {
+            type: "button", style: SS.toggleTrack(!autoMode), disabled: !enabled || busy,
+            "aria-pressed": !autoMode,
+            onClick: function () { setAutoMode(!autoMode); setDirty(true); },
+          }, h("span", { style: SS.toggleThumb(!autoMode) })),
+          h("span", { style: SS.muted }, !autoMode ? tt(t, "settings.on") : tt(t, "settings.off"))),
+        h("p", { style: SS.muted }, tt(t, "settings.autoHint")),
+
+        h("div", { style: SS.row },
+          h("span", { style: SS.label }, tt(t, "settings.systemPrompt")),
+          h("button", {
+            type: "button", style: SS.advBtn, disabled: !enabled || busy,
+            onClick: function () { setSysPrompt(defaultSystem || ""); setDirty(true); },
+          }, tt(t, "settings.default"))),
+        h("textarea", {
+          style: SS.textarea, rows: 8, value: sysPrompt,
+          placeholder: defaultSystem || "",
+          disabled: !enabled || busy,
+          onChange: function (e) { setSysPrompt(e.target.value); setDirty(true); },
+        }),
+        h("p", { style: SS.muted }, tt(t, "settings.systemPromptHint")),
+
+        h("p", { style: SS.label }, tt(t, "settings.extraInstructions")),
+        h("textarea", {
+          style: SS.textarea, rows: 3, value: extraInstr,
+          disabled: !enabled || busy,
+          onChange: function (e) { setExtraInstr(e.target.value); setDirty(true); },
+        }),
+        h("p", { style: SS.muted }, tt(t, "settings.extraInstructionsHint")),
 
         h("div", { style: SS.divider }),
 
