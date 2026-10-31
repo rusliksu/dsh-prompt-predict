@@ -3,9 +3,11 @@ import http from 'node:http';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { messageText, recentMessages, trimMessageText, normalizeSuggestion, predictNextPrompt, detectLanguage, detectConversationLanguage, buildSystem } from '../lib/predict.mjs';
+import { messageText, recentMessages, trimMessageText, normalizeSuggestion, predictNextPrompt, detectLanguage, detectConversationLanguage, buildSystem, DEFAULT_SYSTEM } from '../lib/predict.mjs';
 import { apply } from '../lib/index.js';
 import { makeT, normalizeLang, listSeparator, MESSAGES } from '../lib/messages.mjs';
+import { saveCachedSuggestion } from '../lib/suggestion-store.mjs';
+import { signatureOf, effectiveSettings } from '../lib/prefetch.mjs';
 
 // 设置写入走 DSH_HOME，测试必须隔离到临时目录，避免污染真实配置。
 process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'dsh-prompt-predict-test-'));
@@ -280,7 +282,7 @@ const ctx = {
     if (id === 'session-test') return fakeSession;
     if (id === 'session-dedupe') return fakeSession2;
     if (id === 'session-widen') return fakeSession3;
-    if (id === 'session-near' || id === 'session-stream' || id === 'session-stream-retry' || id === 'session-stream-coalesce' || id === 'session-multiline' || id === 'session-stream-error' || id === 'session-prefix' || /^session-lru-\d+$/.test(id)) return { ...fakeSession, id };
+    if (id === 'session-near' || id === 'session-stream' || id === 'session-stream-retry' || id === 'session-stream-coalesce' || id === 'session-multiline' || id === 'session-stream-error' || id === 'session-prefix' || id === 'session-cache' || /^session-lru-\d+$/.test(id)) return { ...fakeSession, id };
     return undefined;
   } },
   llm: fakeCtx.llm,
@@ -346,6 +348,58 @@ const suggestion = await request('/dsh-prompt-predict/suggest', 'POST', { sessio
 check('建议接口返回预测', suggestion.status === 200 && suggestion.json.suggestion === '继续，直接实现并安装插件', JSON.stringify(suggestion.json));
 check('建议响应带上会话标识', suggestion.json.sessionId === 'session-test', String(suggestion.json.sessionId));
 check('默认跟随当前会话模型', captured.provider === 'provider-current' && captured.model === 'model-current', `${captured.provider}/${captured.model}`);
+
+// lokal: свои настройки подсказок — режим «только по Tab», свой системный промпт и доп. инструкции.
+const CUSTOM_SYSTEM = 'Ты предсказываешь моё следующее сообщение.';
+const defaultsStatus = await request('/dsh-prompt-predict/status');
+check('статус отдаёт встроенный промпт и auto=true',
+  defaultsStatus.json.defaultSystem === DEFAULT_SYSTEM && defaultsStatus.json.effective?.auto === true,
+  JSON.stringify({ auto: defaultsStatus.json.effective?.auto, same: defaultsStatus.json.defaultSystem === DEFAULT_SYSTEM }));
+
+const customSave = await request('/dsh-prompt-predict/settings', 'POST', {
+  auto: false,
+  systemPrompt: CUSTOM_SYSTEM,
+  extraInstructions: 'Пиши по-русски, коротко.',
+});
+check('свои настройки сохраняются',
+  customSave.json.ok === true
+  && customSave.json.effective.auto === false
+  && customSave.json.effective.systemPrompt === CUSTOM_SYSTEM
+  && customSave.json.effective.extraInstructions === 'Пиши по-русски, коротко.',
+  JSON.stringify(customSave.json.effective ?? customSave.json));
+
+const promptTooLong = await request('/dsh-prompt-predict/settings', 'POST', { systemPrompt: 'x'.repeat(8001) });
+check('слишком длинный системный промпт отклонён', promptTooLong.json.ok === false, String(promptTooLong.json.reason));
+const extraTooLong = await request('/dsh-prompt-predict/settings', 'POST', { extraInstructions: 'x'.repeat(2001) });
+check('слишком длинные доп. инструкции отклонены', extraTooLong.json.ok === false, String(extraTooLong.json.reason));
+
+const customRun = await request('/dsh-prompt-predict/suggest', 'POST', { sessionId: 'session-test' });
+check('свой промпт и доп. инструкции уходят в модель',
+  typeof captured.system === 'string' && captured.system.includes(CUSTOM_SYSTEM)
+  && captured.system.includes('Пиши по-русски, коротко.'),
+  String(customRun.json.suggestion ?? '').slice(0, 40) + ' | ' + String(captured.system ?? '').slice(-80));
+
+check('смена своего промпта меняет подпись кэша',
+  signatureOf({ ...effectiveSettings({}), systemPrompt: 'A' }) !== signatureOf({ ...effectiveSettings({}), systemPrompt: 'B' }));
+
+// Вернуть дефолты, чтобы не влиять на последующие проверки.
+await request('/dsh-prompt-predict/settings', 'POST', { auto: true, systemPrompt: '', extraInstructions: '' });
+
+// lokal prefetch: заранее посчитанная подсказка отдаётся из кэша, модель не вызывается.
+// Подпись настроек та же, что видит роут: cordis config теста + дефолты.
+const cacheSession = ctx.sessions.get('session-cache');
+const cacheSig = signatureOf(effectiveSettings({ timeoutMs: 3000, catalogTimeoutMs: 100 }));
+saveCachedSuggestion(cacheSession, 'Сделай следующий шаг', 'provider-current/model-current', cacheSig);
+const modelCallsBeforeCache = streamCalls.length;
+const cachedResponse = await request('/dsh-prompt-predict/suggest', 'POST', { sessionId: 'session-cache' });
+check('кэш предзагрузки отдаётся без вызова модели',
+  cachedResponse.json.ok === true && cachedResponse.json.cached === true
+  && cachedResponse.json.suggestion === 'Сделай следующий шаг'
+  && streamCalls.length === modelCallsBeforeCache,
+  JSON.stringify(cachedResponse.json));
+const rerollResponse = await request('/dsh-prompt-predict/suggest', 'POST', { sessionId: 'session-cache', reroll: true, avoid: 'Сделай следующий шаг' });
+check('reroll игнорирует кэш', rerollResponse.json.ok === true && rerollResponse.json.cached !== true,
+  JSON.stringify(rerollResponse.json));
 
 const ndjson = await requestRaw('/dsh-prompt-predict/suggest', 'POST', { sessionId: 'session-stream', stream: true });
 const events = ndjson.body.trim().split('\n').filter(Boolean).map((line) => JSON.parse(line));
@@ -695,12 +749,18 @@ const noHeader = await request('/dsh-prompt-predict/settings', 'POST', { maxChar
 check('x-dsh-locale: en 时错误文案用英语',
   (await request('/dsh-prompt-predict/settings', 'POST', { maxTokens: 9999 }, { 'x-dsh-locale': 'en' }))
     .json.reason?.includes('Output cap') === true, '');
-check('normalizeLang 识别中英与未知语言',
-  ['zh-CN', 'en-US', 'ru-RU'].map((v) => normalizeLang(v)).join(',') === 'zh,en,zh',
-  ['zh-CN', 'en-US', 'ru-RU'].map((v) => normalizeLang(v)).join(','));
+// 这个 форк добавляет русский словарь хоста (lib/messages.mjs), поэтому ru-RU
+// больше не падает в китайский. Остальные неизвестные языки — по-прежнему zh.
+check('normalizeLang 识别中英俄与未知语言',
+  ['zh-CN', 'en-US', 'ru-RU', 'fr'].map((v) => normalizeLang(v)).join(',') === 'zh,en,ru,zh',
+  ['zh-CN', 'en-US', 'ru-RU', 'fr'].map((v) => normalizeLang(v)).join(','));
 check('中英 host 词典 key 对称',
   Object.keys(MESSAGES.zh).length === Object.keys(MESSAGES.en).length,
   `zh=${Object.keys(MESSAGES.zh).length} en=${Object.keys(MESSAGES.en).length}`);
+// lokal: русские причины ошибок от Host должны покрывать все ключи, иначе часть текста уедет в en.
+check('русский host 词典 полный (все ключи как в en)',
+  Boolean(MESSAGES.ru) && Object.keys(MESSAGES.en).every((k) => k in MESSAGES.ru),
+  `en=${Object.keys(MESSAGES.en).length} ru=${Object.keys(MESSAGES.ru || {}).length} missing=${Object.keys(MESSAGES.en).filter((k) => !MESSAGES.ru || !(k in MESSAGES.ru)).slice(0, 4).join(',')}`);
 
 check('不带语言头时回落中文', /上下文预算/.test(noHeader.json.reason ?? ''), String(noHeader.json.reason));
 

@@ -408,11 +408,11 @@ await typingDock.settle(3);
 check('草稿删空后 ghost 自动恢复', hiddenWhileTyping && hasGhost(typingDock.tree),
   `打字时隐藏=${hiddenWhileTyping} 清空后出现=${hasGhost(typingDock.tree)}`);
 
-// ③ 关键交互按钮都在（Tab 采纳 / ↻ 换一条 / Esc 忽略）
+// lokal: строку подсказок убрали — в ghost остаётся только текст предложения.
 const labels = find(dock.tree, (n) => typeof n.props?.children === 'string').map((n) => n.props.children);
-check('ghost 上有 Tab / ↻ / Esc 三个操作',
-  labels.includes('Tab') && labels.includes('↻') && labels.some((t) => /Esc/.test(t)),
-  labels.filter((t) => t.length < 12).join(' | '));
+check('ghost без подсказок клавиш Tab / ↻ / Esc',
+  !labels.includes('Tab') && !labels.includes('↻') && !labels.some((t) => /Esc|Enter|↓/.test(t)),
+  labels.filter((t) => t.length < 14).join(' | '));
 
 // ③b 长建议必须完整可见：宽度跟随输入框内容区、允许折行，且子树里不能有省略号截断
 const ghostNode = find(dock.tree, (n) => n.props && n.props['data-prompt-predict-ghost'] === 'true')[0];
@@ -954,6 +954,47 @@ check('设置页列出最近预测（含会话标题）',
   check('Tab 采纳多行建议时换行一起插入', inserted === '第一行\n第二行', JSON.stringify(inserted));
   fetchResult = { suggestion: '先补测试再实现', version: '9.9.9' };
 }
+
+// lokal: принять подсказку можно Enter/Tab/→, а повторное нажатие — отправить сообщение.
+{
+  for (const key of ['Enter', 'ArrowRight']) {
+    fetchResult = { suggestion: 'Сделай следующий шаг', version: '9.9.9' };
+    let inserted = null;
+    const inst = setup();
+    const view = mount(inst.react, inst.registered['conversation.composer.dock'].Component, () => ({
+      ...makeProps(''),
+      inputActions: { captureInsertion: () => ({}), insertText: (text) => { inserted = text; return true; } },
+    }));
+    await view.settle();
+    inst.env.window.dispatchEvent({ type: 'keydown', key, preventDefault() {}, stopPropagation() {} });
+    await view.settle(2);
+    check(key + ' принимает подсказку', inserted === 'Сделай следующий шаг', JSON.stringify(inserted));
+  }
+
+  fetchResult = { suggestion: 'Сделай следующий шаг', version: '9.9.9' };
+  let submits = 0;
+  let accepted = null;
+  const inst = setup();
+  const view = mount(inst.react, inst.registered['conversation.composer.dock'].Component, () => ({
+    ...makeProps(''),
+    inputActions: {
+      captureInsertion: () => ({}),
+      insertText: (text) => { accepted = text; return true; },
+      submit: () => { submits += 1; },
+    },
+  }));
+  await view.settle();
+  const pressEnter = () => inst.env.window.dispatchEvent({ type: 'keydown', key: 'Enter', preventDefault() {}, stopPropagation() {} });
+  pressEnter();
+  await view.settle(2);
+  pressEnter();
+  await view.settle(2);
+  check('второй Enter отправляет принятую подсказку',
+    submits === 1 && accepted === 'Сделай следующий шаг',
+    'submits=' + submits + ' accepted=' + JSON.stringify(accepted));
+  fetchResult = { suggestion: '先补测试再实现', version: '9.9.9' };
+}
+
 
 // 设置页明确提示：所有设置需要手动保存才生效
 {
@@ -1568,14 +1609,15 @@ check('设置页列出最近预测（含会话标题）',
   await view.settle();
   check('reroll 前显示截断标记', /已截断/.test(textOf(view.tree)), '');
   fetchResult = { suggestion: '换一条完整的新建议', truncated: false };
-  find(view.tree, (n) => n.type === 'button' && n.props?.children === '↻')[0]?.props?.onClick?.();
+  // lokal: кнопки ↻ больше нет — reroll идёт по ↓, как в остальном UI.
+  inst.env.window.dispatchEvent({ type: 'keydown', key: 'ArrowDown', code: 'ArrowDown', preventDefault() {}, stopPropagation() {} });
   await view.settle(4);
   check('reroll 换成完整建议后清除截断标记',
     /换一条完整的新建议/.test(textOf(view.tree)) && !/已截断/.test(textOf(view.tree)),
     textOf(view.tree).slice(-100));
 
   fetchResult = { suggestion: '这次又被截断', truncated: true };
-  find(view.tree, (n) => n.type === 'button' && n.props?.children === '↻')[0]?.props?.onClick?.();
+  inst.env.window.dispatchEvent({ type: 'keydown', key: 'ArrowDown', code: 'ArrowDown', preventDefault() {}, stopPropagation() {} });
   await view.settle(4);
   check('reroll 换成截断建议后显示截断标记', /已截断/.test(textOf(view.tree)), '');
   fetchResult = { suggestion: '先补测试再实现', version: '9.9.9' };
@@ -1634,7 +1676,7 @@ check('设置页列出最近预测（含会话标题）',
   const copyBtn = find(view.tree, (n) => n.props && n.props['data-prompt-predict-history-copy'] === 'true')[0];
   copyBtn?.props?.onClick?.();
   await view.settle(3);
-  // 注意：沙箱把 setTimeout 压成 0ms，"已复制" 文案会立刻复位，所以只断言剪贴板内容
+  // 注意：沙箱把 setTimeout 压成 0ms，"Скопировано" 文案会立刻复位，所以只断言剪贴板内容
   check('点「复制」把建议原文写进剪贴板', inst.env.clipboard.text === '这条会被复制',
     `clipboard=${JSON.stringify(inst.env.clipboard.text)}`);
 
@@ -1870,7 +1912,8 @@ check('最近预测不再重复显示在状态行',
   const dock = mount(inst.react, inst.registered['conversation.composer.dock'].Component, () => makeProps(''));
   await dock.settle();
   const reroll = find(dock.tree, (n) => n.type === 'button' && n.props?.children === '↻')[0];
-  check('ghost 的 reroll 按钮有 aria-label', Boolean(reroll?.props?.['aria-label']), String(reroll?.props?.['aria-label']));
+  // lokal: строку подсказок убрали — кнопки reroll в ghost больше нет, смена по ↓.
+  check('в ghost нет кнопки reroll (подсказки убраны)', !reroll, String(Boolean(reroll)));
   const settingsView = mount(inst.react, inst.registered['settings.section'].Component, () => ({}));
   await settingsView.settle();
   const advanced = find(settingsView.tree, (n) => n.type === 'button' && /高级/.test(String(n.props?.children)))[0];
@@ -1907,10 +1950,11 @@ check('最近预测不再重复显示在状态行',
   fetchResult = { suggestion: '先补测试再实现', version: '9.9.9' };
 }
 
-// ⑤ 双语：同一个组件，换语言后渲染出的文案必须跟着换
+// Язык интерфейса берётся из локали DSH: zh/en/ru показывают свой словарь.
 for (const [lang, expect] of [
   ['zh', '启用联想'],
   ['en', 'Enable predictions'],
+  ['ru', 'Включить подсказки'],
 ]) {
   const inst = setup(makeLocale(lang));
   const C = inst.registered['settings.section'].Component;
@@ -1927,6 +1971,11 @@ for (const [lang, expect] of [
   check('词典以命名空间注册进了 locale 服务',
     Boolean(dict) && dict.zh && dict.en && Object.keys(dict.en).length > 60,
     dict ? `zh=${Object.keys(dict.zh).length} en=${Object.keys(dict.en).length}` : 'not registered');
+  // lokal: русский словарь должен покрывать все ключи английского, иначе часть UI молча уедет в en/zh.
+  const missingRu = dict && dict.en ? Object.keys(dict.en).filter((k) => !dict.ru || !(k in dict.ru)) : ['no dict'];
+  check('русский словарь полный (все ключи как в en)',
+    missingRu.length === 0,
+    dict ? `en=${Object.keys(dict.en).length} ru=${Object.keys(dict.ru || {}).length} missing=${missingRu.slice(0, 4).join(',')}` : 'not registered');
 }
 
 // 无障碍：灰字对比度要够、按钮点击区域不能太小
@@ -1944,9 +1993,9 @@ for (const [lang, expect] of [
     String(ghostText?.props?.style?.color || '').startsWith('var(--dsw-alias-label-tertiary')
     && String(ghostText?.props?.style?.color).includes('#6b7280'),
     String(ghostText?.props?.style?.color));
-  const tabBtn = find(ghost, (n) => n.type === 'button' && n.props?.children === 'Tab')[0];
-  check('操作按钮点击区域 ≥ 24px', tabBtn?.props?.style?.height >= 24 && tabBtn?.props?.style?.fontSize >= 11,
-    `height=${tabBtn?.props?.style?.height} fontSize=${tabBtn?.props?.style?.fontSize}`);
+  check('в ghost не осталось кнопок-подсказок',
+    find(ghost, (n) => n.type === 'button').length === 0,
+    'buttons=' + find(ghost, (n) => n.type === 'button').length);
 }
 
 // 修复 1：粘贴 / 输入法 / 拖拽 也要让 ghost 消失（只监听 keydown 会漏）
