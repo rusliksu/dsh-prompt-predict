@@ -1301,6 +1301,24 @@ window.__ModuleLoader__.load({
           "data-prompt-predict-text": "true",
           style: { color: token("label-tertiary", colors().ghostText) },
         }, suggestion),
+        // lokal: одна кнопка смены подсказки — самодостаточный контрол без строки хинтов.
+        onReroll
+          ? h("button", {
+            type: "button",
+            onClick: onReroll,
+            title: tt(t, "ghost.reroll"),
+            "aria-label": tt(t, "ghost.reroll"),
+            "data-prompt-predict-reroll": "true",
+            style: {
+              pointerEvents: "auto", marginInlineStart: 6, width: 22, height: 22, padding: 0,
+              borderRadius: 6, verticalAlign: "middle",
+              border: "1px solid " + token("border-l1", colors().border),
+              background: token("bg-layer-2", colors().softBg),
+              color: token("label-secondary", colors().chipText),
+              fontSize: 12, lineHeight: 1, cursor: "pointer",
+            },
+          }, "↻")
+          : null,
         // lokal: строку подсказок (Tab / ↓ / ↻ / Esc) убрали — она мешала и отъедала место.
         // Оставляем только служебные сообщения: лимит переключений и «обрезано».
         busy || (!notice && !truncated) ? null : h("span", {
@@ -1519,6 +1537,9 @@ window.__ModuleLoader__.load({
       }
       var applySuggestionEvent = function (event, isReroll, manual) {
         if (!event || controllerAborted()) return;
+        // lokal: подсказка уже висит в поле — автоматический ответ её не заменяет,
+        // используется старая. Пересчёт только по явному действию (↓ / ↻ / Ctrl+Shift+Space).
+        if (!isReroll && !manual && visibleSuggestion) return;
         if (event.type === "start" || event.type === "reset") {
           setManualError("");
           // 不要在这里 endBusy：模型可能还要好几秒才吐第一个字，
