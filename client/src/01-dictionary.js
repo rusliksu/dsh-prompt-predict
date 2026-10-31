@@ -2,7 +2,7 @@
       zh: {
         "effort.off": "关闭", "effort.minimal": "最小", "effort.low": "低",
         "effort.medium": "中", "effort.high": "高", "effort.max": "最大",
-        "ghost.acceptHint": "Tab 采纳 · Alt+→ 逐段采纳",
+        "ghost.acceptHint": "Enter/Tab/→ 采纳 · 再按一次发送",
         "ghost.reroll": "换一条建议",
         "ghost.dismiss": "Esc 忽略",
         "ghost.regenHint": "↓ 重新生成",
@@ -12,8 +12,15 @@
         "settings.desc": "助手回复结束后，在输入框里直接给出灰色建议（Tab 采纳、Esc 忽略、开始输入自动消失）。",
         "settings.saveHint": "注意：所有设置修改后都需要点击「保存」才会生效。",
         "settings.enable": "启用联想",
+        "settings.auto": "仅按 Tab 时生成",
+        "settings.autoHint": "开启后，回复结束不自动生成建议；在输入框按 Tab 生成并插入。",
+        "settings.systemPrompt": "联想系统提示词",
+        "settings.systemPromptHint": "留空则使用内置提示词；点「默认」把内置提示词填入以便修改。",
+        "settings.extraInstructions": "附加指令",
+        "settings.extraInstructionsHint": "追加到系统提示词：风格、长度、称呼、需要避免的内容。",
+        "settings.default": "默认",
         "settings.on": "已开启",
-        "settings.shortcutHint": "快捷键：Ctrl/⌘+Shift+Space 手动触发；Tab 采纳，↓ 重新生成，Esc 忽略",
+        "settings.shortcutHint": "快捷键：Ctrl/⌘+Shift+Space 手动触发；Enter/Tab/→ 采纳（再按一次发送），↓ 重新生成，Esc 忽略",
         "settings.off": "已关闭",
         "settings.provider": "提供商",
         "settings.refreshModels": "刷新",
@@ -142,7 +149,7 @@
       en: {
         "effort.off": "Off", "effort.minimal": "Minimal", "effort.low": "Low",
         "effort.medium": "Medium", "effort.high": "High", "effort.max": "Max",
-        "ghost.acceptHint": "Tab to accept · Alt+→ piece by piece",
+        "ghost.acceptHint": "Enter/Tab/→ to accept · press again to send",
         "ghost.reroll": "Suggest another",
         "ghost.dismiss": "Esc to dismiss",
         "ghost.regenHint": "↓ regenerate",
@@ -152,8 +159,15 @@
         "settings.desc": "Shows a gray suggestion in the composer right after each reply (Tab to accept, Esc to dismiss, start typing and it goes away).",
         "settings.saveHint": "Note: all settings take effect only after you click Save.",
         "settings.enable": "Enable predictions",
+        "settings.auto": "Only on demand",
+        "settings.autoHint": "When on, no suggestion appears after a reply — press Tab in the composer to generate and insert one.",
+        "settings.systemPrompt": "Predictor system prompt",
+        "settings.systemPromptHint": "Leave empty to use the built-in prompt; press “Default” to load it for editing.",
+        "settings.extraInstructions": "Extra instructions",
+        "settings.extraInstructionsHint": "Appended to the system prompt: style, length, tone, what to avoid.",
+        "settings.default": "Default",
         "settings.on": "On",
-        "settings.shortcutHint": "Shortcuts: Ctrl/⌘+Shift+Space to trigger; Tab accepts, ↓ regenerates, Esc dismisses",
+        "settings.shortcutHint": "Shortcuts: Ctrl/⌘+Shift+Space to trigger; Enter/Tab/→ accepts (again sends), ↓ regenerates, Esc dismisses",
         "settings.off": "Off",
         "settings.provider": "Provider",
         "settings.refreshModels": "Refresh",
@@ -279,6 +293,157 @@
         "dock.paused": "Prediction paused · resumes in {time}",
         "dock.failureHint": "Prediction failed: {reason} (shown after two failures in a row; details in Settings → Prompt suggestions)",
       },
+      ru: {
+        "effort.off": "Выкл.",
+        "effort.minimal": "Минимальная",
+        "effort.low": "Низкая",
+        "effort.medium": "Средняя",
+        "effort.high": "Высокая",
+        "effort.max": "Максимальная",
+        "ghost.acceptHint": "Enter/Tab/→ — принять · ещё раз — отправить",
+        "ghost.reroll": "Другой вариант",
+        "ghost.dismiss": "Esc — скрыть",
+        "ghost.regenHint": "↓ — заново",
+        "ghost.truncated": "обрезано · увеличьте длину",
+        "ghost.truncatedHint": "обрезано · увеличьте «Длину подсказки»: Настройки → Подсказки → Дополнительно",
+        "settings.title": "Подсказки в поле ввода",
+        "settings.desc": "После ответа в поле ввода появляется серая подсказка (Tab — принять, Esc — скрыть; при наборе исчезает).",
+        "settings.saveHint": "Важно: настройки применяются только после нажатия «Сохранить».",
+        "settings.enable": "Включить подсказки",
+        "settings.auto": "Только по Tab",
+        "settings.autoHint": "Включено — подсказка не генерируется после ответа; нажмите Tab в поле ввода, чтобы получить и вставить её.",
+        "settings.systemPrompt": "Системный промпт подсказок",
+        "settings.systemPromptHint": "Пусто — встроенный промпт. Кнопка «Стандартный» вставит его для правки.",
+        "settings.extraInstructions": "Доп. инструкции",
+        "settings.extraInstructionsHint": "Добавляются к системному промпту: стиль, длина, обращение, чего избегать.",
+        "settings.default": "Стандартный",
+        "settings.on": "Включено",
+        "settings.shortcutHint": "Горячие клавиши: Ctrl/⌘+Shift+Space — вызвать; Enter/Tab/→ — принять (ещё раз — отправить), ↓ — заново, Esc — скрыть",
+        "settings.off": "Выключено",
+        "settings.provider": "Провайдер",
+        "settings.refreshModels": "Обновить",
+        "settings.model": "Модель",
+        "settings.followSession": "Следовать модели текущей сессии",
+        "settings.modelHint": "По умолчанию берётся модель текущей сессии; можно закрепить быструю — так экономнее.",
+        "settings.providerError": "Провайдер недоступен: {detail}",
+        "settings.providerUnavailableShort": "недоступен",
+        "settings.catalogError": "Не удалось загрузить каталог провайдеров: {detail}",
+        "settings.catalogFailed": "Не удалось загрузить каталог провайдеров",
+        "settings.noModels": "Нет доступных моделей",
+        "settings.advanced": "Дополнительно",
+        "settings.timeout": "Таймаут ответа",
+        "settings.timeoutUnit": "с (1–60)",
+        "settings.contextSize": "Объём контекста",
+        "settings.contextSmall": "Меньше: последние 3 сообщения",
+        "settings.contextStandard": "Стандарт: последние 8 (по умолчанию)",
+        "settings.contextLarge": "Больше: последние 12",
+        "settings.contextHint": "Больше — точнее, но медленнее",
+        "settings.maxChars": "Бюджет контекста",
+        "settings.maxCharsHint": "лимит символов (1000–20000), меньше — экономнее по токенам",
+        "settings.outputChars": "Длина подсказки",
+        "settings.outputCharsHint": "20–400 символов, без расчёта токенов",
+        "settings.multiline": "Сохранять многострочность",
+        "settings.multilineHint": "Не ломать переносы и отступы в коде и списках; выключено — одна строка (без нескольких вариантов)",
+        "settings.switchEnabled": "Переключение подсказок",
+        "settings.switchEnabledHint": "Включено: ↓ — следующая подсказка, ↑ — предыдущая; выключено — стрелки не переключают",
+        "settings.switchLimit": "Лимит переключений",
+        "settings.switchLimitHint": "сколько новых подсказок генерировать за круг (0–10; 0 = без ограничений); возврат по ↑ не считается",
+        "dock.switchLimit": "Лимит переключений исчерпан ({limit}); нажмите ↑, чтобы вернуться",
+        "ghost.nextHint": "↓ — следующая",
+        "ghost.prevHint": "↑ — предыдущая",
+        "settings.outputCharsHintFull": "Длина считается в символах. Из неё выводится щедрый лимит токенов; если ответ всё равно обрезан, подсказка об этом скажет и запрос один раз повторится с большим запасом",
+        "settings.outputCharsWords": " (~{words} слов)",
+        "settings.effort": "Глубина рассуждений",
+        "settings.effortDefault": "Как в модели по умолчанию",
+        "settings.effortDefaultNoLevels": "Как в модели по умолчанию (у неё нет настраиваемых уровней)",
+        "settings.effortFastest": "(быстрее и дешевле всего)",
+        "settings.effortHint": "Для подсказок лучше помельче: слишком глубокая тратит токены на рассуждения",
+        "settings.effortFromSession": "Уровни собраны по модели текущей сессии: {provider} / {model}",
+        "settings.effortNoSession": "Уровни собраны по модели текущей сессии (сейчас модель недоступна)",
+        "settings.save": "Сохранить",
+        "settings.saving": "Сохраняю…",
+        "settings.reset": "Сбросить настройки",
+        "settings.saved": "Сохранено — действует сразу",
+        "settings.saveFailed": "Не удалось сохранить",
+        "settings.enabled": "Подсказки включены",
+        "settings.disabled": "Подсказки выключены",
+        "settings.actionFailed": "Не удалось выполнить действие",
+        "settings.resetDone": "Настройки сброшены",
+        "settings.loading": "Загружаю…",
+        "settings.pause": "Пауза",
+        "settings.pauseStart": "Поставить на паузу",
+        "settings.pauseResume": "Продолжить сейчас",
+        "settings.pauseLeft": "Пауза — осталось {time} (продолжится автоматически)",
+        "settings.pauseHint": "На {minutes} мин. без вызовов",
+        "settings.pauseHintFull": "Нужно, когда подсказки какое-то время не нужны: пока пауза, вызовов нет, потом всё возобновляется само",
+        "settings.test": "Проверить сейчас",
+        "settings.testing": "Запрашиваю…",
+        "settings.testNeedSession": "Сначала откройте диалог — у страницы настроек нет контекста сессии",
+        "settings.testResult": "Пример подсказки: {text}",
+        "settings.testMeta": "{provider} / {model} · {ms} мс",
+        "settings.checkUpdate": "Проверить обновления",
+        "settings.updateChecking": "Проверяю…",
+        "settings.updateLatest": "У вас последняя версия",
+        "settings.updateFound": "Доступна новая версия v{version}",
+        "settings.updateCommand": "Команда обновления: {command}",
+        "settings.updateStep1": "Шаги: 1. Полностью закройте приложение (Cmd+Q) — во время работы обновление не установится",
+        "settings.updateStep2": "2. Выполните команду выше в терминале (профиль подставлен для этого окружения; замените, если у вас свой профиль)",
+        "settings.updateStep3": "3. Откройте приложение заново; изменения только в клиенте подхватятся перезагрузкой окна",
+        "settings.updateOtherEnv": "Чтобы поставить и в другом окружении, повторите команду с другим профилем (desktop ↔ web).",
+        "settings.updateCopy": "Копировать команду",
+        "settings.updateCopied": "Скопировано",
+        "settings.updateError": "Проверка не удалась: registry.npmjs.org недоступен",
+        "settings.updateAutoFailed": "Автопроверка обновлений не удалась; нажмите «Проверить обновления», чтобы повторить.",
+        "run.effortDropped": "глубина рассуждений понижена автоматически",
+        "run.dedupRetry": "запрошен другой вариант",
+        "run.truncated": "упёрлось в лимит длины",
+        "run.ms": "мс",
+        "settings.truncatedWarn": "Последняя подсказка упёрлась в лимит длины: увеличьте «Длину подсказки» выше (например, до 200 символов), нажмите «Сохранить» и вызовите подсказку снова.",
+        "run.session": "сессия {name}",
+        "run.failedShort": "ошибка — {reason}",
+        "run.partialChars": "получено символов: {count}",
+        "run.partialCharsOne": "получен 1 символ",
+        "settings.historyTitle": "Последние подсказки ({count}/{limit})",
+        "settings.historyHint": "Нажмите на строку, чтобы раскрыть текст подсказки (хранится локально, никуда не отправляется)",
+        "settings.historyToggle": "Раскрыть / свернуть текст подсказки",
+        "settings.historyExpand": "Показать все",
+        "settings.historyCollapse": "Свернуть",
+        "settings.historyClear": "Очистить",
+        "settings.historyCleared": "Очищено.",
+        "settings.historyUndo": "Отменить",
+        "settings.historyCopy": "Копировать",
+        "settings.historyInsert": "Вставить",
+        "settings.historyInserted": "Вставлено",
+        "settings.historyAccepted": "Принято",
+        "settings.historyCopied": "Скопировано",
+        "settings.historyNoText": "Для этого запуска текст подсказки не сохранился (старая запись)",
+        "settings.historyEmpty": "Записей пока нет: вызовите подсказку — здесь появятся последние с сессией, моделью, задержкой и флагами.",
+        "settings.historyOff": "История выключена (0 записей): текст подсказок локально не сохраняется.",
+        "settings.predictionSection": "Что предсказывать",
+        "settings.suggestionLanguage": "Язык подсказок",
+        "settings.suggestionLanguageHint": "Как в диалоге или зафиксировать",
+        "settings.suggestionLanguageHintFull": "По умолчанию определяется по диалогу; зафиксируйте язык, чтобы подсказки всегда были на нём (для языков с региональными вариантами появится выбор региона)",
+        "settings.languageAuto": "Авто (по диалогу)",
+        "settings.languageMore": "Ещё языки… (ещё {count})",
+        "settings.languageRegion": "Регион",
+        "settings.historySize": "Размер истории",
+        "settings.historySizeHint": "сколько последних подсказок хранить (0–50; 0 — выключить историю). Хранится в {storage}; только локально, никуда не отправляется, переживает перезапуск",
+        "storage.electron": "собственное хранилище приложения (Electron renderer)",
+        "storage.web": "localStorage браузера",
+        "dock.noSuggestion": "Прогноз не вернул пригодную подсказку",
+        "dock.rerollFailed": "Не удалось получить другой вариант",
+        "dock.generatingAny": "Генерирую подсказку…",
+        "dock.manualFailed": "Не удалось получить новую подсказку: {reason}",
+        "dock.discarded": "Результат отброшен: {why}",
+        "dock.whyComposing": "составление IME так и не завершилось",
+        "dock.whyTyping": "во время запроса замечен ввод",
+        "dock.whyDraft": "в поле ввода уже есть текст",
+        "dock.openSettings": "Открыть настройки",
+        "dock.copySettingsPath": "Копировать путь к настройкам",
+        "dock.settingsPath": "Настройки → Подсказки в поле ввода",
+        "dock.paused": "Предсказание на паузе · продолжится через {time}",
+        "dock.failureHint": "Предсказание не удалось: {reason} (показывается после двух ошибок подряд; подробности — Настройки → Подсказки)",
+      },
     };
 
     // 建议语言：auto = 跟随对话；其余候选由 Host 提供（status.languages），
@@ -394,31 +559,34 @@
      * 已知 key 去问翻译、跟词典比对。
      */
     function currentLang() {
+      // Локаль берём из сервиса DSH (в профиле preference: ru), а не из чужого t —
+      // иначе часть строк приходила из zh, часть из en.
       try {
         var snap = localeService && typeof localeService.getSnapshot === "function" ? localeService.getSnapshot() : null;
         var v = snap && (snap.active || snap.locale || snap.id);
         if (typeof v === "string" && v) {
           var low = v.toLowerCase();
-          return low.indexOf("zh") === 0 ? "zh" : "en";   // 与 DSH 界面语言保持一致
+          if (low.indexOf("ru") === 0) return "ru";
+          return low.indexOf("zh") === 0 ? "zh" : "en";
         }
-      } catch { /* 下面再试比对 */ }
+      } catch { /* ниже — по словарю */ }
       try {
         if (boundTranslate) {
           var probe = boundTranslate("settings.title");
+          if (DICT.ru && probe === DICT.ru["settings.title"]) return "ru";
           if (DICT.en && probe === DICT.en["settings.title"]) return "en";
         }
       } catch { /* 保守回中文 */ }
       return "zh";
     }
     // 界面语言对应的 BCP-47 标记：时间等格式化跟界面语言走，而不是系统语言。
-    var UI_LOCALES = { zh: "zh-CN", en: "en-US" };
+    var UI_LOCALES = { zh: "zh-CN", en: "en-US", ru: "ru-RU" };
     function uiLocale() { return UI_LOCALES[currentLang()] || undefined; }
 
     function tt(t, key, vars) {
-      var fn = t || boundTranslate || fallbackTranslate;
-      var text = null;
-      try { text = fn(key); } catch { text = null; }
-      if (typeof text !== "string" || !text || text === key) text = fallbackTranslate(key);
+      // lokal: берём свой словарь по текущей локали, а не чужой t из слота —
+      // из-за него часть строк приходила из zh, часть из en.
+      var text = fallbackTranslate(key);
       if (vars) {
         text = text.replace(/\{(\w+)\}/g, function (m, k) {
           return vars[k] === undefined || vars[k] === null ? m : String(vars[k]);

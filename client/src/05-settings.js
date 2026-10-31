@@ -32,6 +32,11 @@
       var _lo = useState(DEFAULT_LANGUAGE_CODES), languageCodes = _lo[0], setLanguageCodes = _lo[1];
       var _lx = useState(false), languagesExpanded = _lx[0], setLanguagesExpanded = _lx[1];
       var _ef = useState("off"), effort = _ef[0], setEffort = _ef[1];
+      // lokal: свои настройки подсказок — режим «только по Tab», свой системный промпт и доп. инструкции.
+      var _am = useState(true), autoMode = _am[0], setAutoMode = _am[1];
+      var _sp = useState(""), sysPrompt = _sp[0], setSysPrompt = _sp[1];
+      var _ei = useState(""), extraInstr = _ei[0], setExtraInstr = _ei[1];
+      var _ds = useState(""), defaultSystem = _ds[0], setDefaultSystem = _ds[1];
       var _eo = useState([]), effortOptions = _eo[0], setEffortOptions = _eo[1];
       var _hist = useState(runHistory.slice()), history = _hist[0], setHistory = _hist[1];
       var _open = useState(null), openKey = _open[0], setOpenKey = _open[1];   // null = 默认展开第一条
@@ -165,6 +170,10 @@
           var stored = trimHistoryToLimit(historyLimit);
           setHistory(stored);
           setEffort(eff.reasoningEffort || "off");
+          setAutoMode(eff.auto !== false);
+          setSysPrompt(typeof eff.systemPrompt === "string" ? eff.systemPrompt : "");
+          setExtraInstr(typeof eff.extraInstructions === "string" ? eff.extraInstructions : "");
+          setDefaultSystem(typeof j.defaultSystem === "string" ? j.defaultSystem : "");
           setDirty(false);
         }).catch(function () { });
         api("catalog").then(function (j) {
@@ -243,6 +252,9 @@
           historySize: historySize,
           suggestionLanguage: suggestionLanguage,
           reasoningEffort: effort,
+          auto: autoMode,
+          systemPrompt: sysPrompt,
+          extraInstructions: extraInstr,
         }).then(function (j) {
           if (j && j.ok) { trimHistoryToLimit(historySize); notifySettings(j.effective); setMsg({ ok: true, text: tt(t, "settings.saved") }); setDirty(false); loadAll(); }
           else setMsg({ ok: false, text: (j && j.reason) || tt(t, "settings.saveFailed") });
@@ -347,6 +359,39 @@
             h("span", { style: SS.toggleThumb(enabled) })),
           h("span", { style: SS.muted }, enabled ? tt(t, "settings.on") : tt(t, "settings.off"))),
         h("p", { style: SS.muted }, tt(t, "settings.shortcutHint")),
+
+        // lokal: «только по Tab» — обратный флаг auto: включённый переключатель = без автоподсказок.
+        h("div", { style: SS.row },
+          h("span", { style: SS.label }, tt(t, "settings.auto")),
+          h("button", {
+            type: "button", style: SS.toggleTrack(!autoMode), disabled: !enabled || busy,
+            "aria-pressed": !autoMode,
+            onClick: function () { setAutoMode(!autoMode); setDirty(true); },
+          }, h("span", { style: SS.toggleThumb(!autoMode) })),
+          h("span", { style: SS.muted }, !autoMode ? tt(t, "settings.on") : tt(t, "settings.off"))),
+        h("p", { style: SS.muted }, tt(t, "settings.autoHint")),
+
+        h("div", { style: SS.row },
+          h("span", { style: SS.label }, tt(t, "settings.systemPrompt")),
+          h("button", {
+            type: "button", style: SS.advBtn, disabled: !enabled || busy,
+            onClick: function () { setSysPrompt(defaultSystem || ""); setDirty(true); },
+          }, tt(t, "settings.default"))),
+        h("textarea", {
+          style: SS.textarea, rows: 8, value: sysPrompt,
+          placeholder: defaultSystem || "",
+          disabled: !enabled || busy,
+          onChange: function (e) { setSysPrompt(e.target.value); setDirty(true); },
+        }),
+        h("p", { style: SS.muted }, tt(t, "settings.systemPromptHint")),
+
+        h("p", { style: SS.label }, tt(t, "settings.extraInstructions")),
+        h("textarea", {
+          style: SS.textarea, rows: 3, value: extraInstr,
+          disabled: !enabled || busy,
+          onChange: function (e) { setExtraInstr(e.target.value); setDirty(true); },
+        }),
+        h("p", { style: SS.muted }, tt(t, "settings.extraInstructionsHint")),
 
         h("div", { style: SS.divider }),
 

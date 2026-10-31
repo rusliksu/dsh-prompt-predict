@@ -389,49 +389,17 @@
           "data-prompt-predict-text": "true",
           style: { color: token("label-tertiary", colors().ghostText) },
         }, suggestion),
-        busy ? null : h("span", {
+        // lokal: строку подсказок (Tab / ↓ / ↻ / Esc) убрали — она мешала и отъедала место.
+        // Оставляем только служебные сообщения: лимит переключений и «обрезано».
+        busy || (!notice && !truncated) ? null : h("span", {
           style: { display: "inline-flex", alignItems: "center", gap: 6, marginInlineStart: 8, whiteSpace: "nowrap", verticalAlign: "middle" },
         },
-          h("button", {
-            type: "button", onClick: onAccept,
-            title: tt(t, "ghost.acceptHint"), "aria-label": tt(t, "ghost.acceptHint"),
-            style: {
-              pointerEvents: "auto", padding: "0 9px", height: 24, borderRadius: 6,
-              border: "1px solid " + token("border-l1", colors().border), background: token("bg-layer-2", colors().softBg),
-              color: token("label-secondary", colors().chipText), fontSize: 11, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", cursor: "pointer",
-            },
-          }, "Tab"),
-          canPrev
-            ? h("span", {
-              "data-prompt-predict-prev-hint": "true",
-              title: tt(t, "ghost.prevHint"),
-              style: { color: token("label-tertiary", colors().ghostHint), fontSize: 11, whiteSpace: "nowrap" },
-            }, tt(t, "ghost.prevHint"))
-            : null,
-          nextAction === "next" || nextAction === "regen"
-            ? h("span", {
-              "data-prompt-predict-replace-hint": "true",
-              title: tt(t, nextAction === "next" ? "ghost.nextHint" : "ghost.regenHint"),
-              style: { color: token("label-tertiary", colors().ghostHint), fontSize: 11, whiteSpace: "nowrap" },
-            }, tt(t, nextAction === "next" ? "ghost.nextHint" : "ghost.regenHint"))
-            : null,
           notice
             ? h("span", {
               "data-prompt-predict-notice": "true",
               style: { color: token("label-tertiary", colors().ghostHint), fontSize: 10, whiteSpace: "nowrap" },
             }, notice)
             : null,
-          onReroll
-            ? h("button", {
-              type: "button", onClick: onReroll, title: tt(t, "ghost.reroll"), "aria-label": tt(t, "ghost.reroll"),
-              style: {
-                pointerEvents: "auto", width: 24, height: 24, padding: 0, borderRadius: 6,
-                border: "1px solid var(--dsw-alias-border-l1, " + colors().border + ")", background: "var(--dsw-alias-bg-secondary, " + colors().softBg + ")",
-                color: token("label-secondary", colors().chipText), fontSize: 12, lineHeight: 1, cursor: "pointer",
-              },
-            }, "↻")
-            : null,
-          h("span", { style: { color: token("label-tertiary", colors().ghostHint), fontSize: 11, whiteSpace: "nowrap" } }, tt(t, "ghost.dismiss")),
           truncated
             ? h("span", {
               // 覆盖层整体 pointer-events:none：这里单独放开，悬停时把设置路径直接展开在文字里

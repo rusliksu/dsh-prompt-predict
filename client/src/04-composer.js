@@ -29,6 +29,8 @@
       var _me = useState(""), manualError = _me[0], setManualError = _me[1];   // 手动换一条失败的原因
       var _mk = useState("failed"), manualErrorKind = _mk[0], setManualErrorKind = _mk[1];
       var _en = useState(true), enabled = _en[0], setEnabled = _en[1];
+      // lokal: auto=false — режим «только по Tab», автоподсказок после ответа нет.
+      var _am = useState(true), autoMode = _am[0], setAutoMode = _am[1];
       var _swi = useState(true), switchEnabled = _swi[0], setSwitchEnabled = _swi[1];
       var switchLimitRef = useRef(3);
       var suggestionHistoryRef = useRef([]);
@@ -51,6 +53,9 @@
       var suppressPredictionUntil = useRef(0);   // 粘贴后短暂禁止自动预测，避免读不到正文时误换一条
       var hadAttachmentsRef = useRef(false);   // 用于「删除附件」时清掉残留建议
       var lastReplaceAt = useRef(0);   // ↓ 的 keydown/keyup 双保险去重
+      // lokal: Enter/Tab/→ принимают подсказку; повторное нажатие той же клавиши — отправка.
+      var acceptedTextRef = useRef("");   // текст, вставленный последним принятием
+      var acceptedAtRef = useRef(0);     // когда вставили: окно «двойного нажатия»
       // 粘贴/拖入图片或文件：即使 DOM 里检测不到附件，也视为「有内容」。
       var hasInputAttachments = function () {
         var value = composerState;
@@ -192,6 +197,7 @@
       useEffect(function () {
         api("status").then(function (j) {
           setEnabled(!(j && j.effective && j.effective.enabled === false));
+          setAutoMode(!(j && j.effective && j.effective.auto === false));
           setSwitchEnabled(!(j && j.effective && j.effective.switchEnabled === false));
           switchLimitRef.current = Math.min(10, Math.max(0, Math.floor(Number(j && j.effective && j.effective.switchLimit) || 0)));
           if (j && j.effective && typeof j.effective.historySize === "number") {
@@ -204,6 +210,7 @@
         var changed = function (event) {
           var on = event.detail?.enabled !== false;
           setEnabled(on);
+          if (event.detail && typeof event.detail.auto === "boolean") setAutoMode(event.detail.auto);
           if (event.detail && typeof event.detail.switchEnabled === "boolean") setSwitchEnabled(event.detail.switchEnabled);
           if (event.detail && typeof event.detail.switchLimit === "number") {
             switchLimitRef.current = Math.min(10, Math.max(0, Math.floor(event.detail.switchLimit)));
@@ -346,6 +353,8 @@
 
       useEffect(function () {
         if (!enabled) return;
+        // Режим «только по Tab»: автоподсказку не считаем, ждём Tab в поле ввода.
+        if (!autoMode) return;
         if (running) {
           armed.current = true;
           dismissedByDraft.current = false;
@@ -395,7 +404,7 @@
           controller.abort();
           if (abortRef.current === controller) abortRef.current = null;
         };
-      }, [sessionId, running, blank, removed, draft, enabled, draftTick]);
+      }, [sessionId, running, blank, removed, draft, enabled, autoMode, draftTick]);
 
       // 直接盯编辑器 DOM：贴图、删图、打字、拖拽都会触发；不依赖 input 事件与正文可读性。
       // 只要我们自己的插入不在进行中，任何内容变化都立刻收起建议。
@@ -629,6 +638,9 @@
           var span = inputActions.captureInsertion();
           selfInsertAt.current = Date.now();
           if (!inputActions.insertText(visibleSuggestion, span)) return false;
+          // lokal: запоминаем, что именно вставили и когда — второе нажатие отправит сообщение.
+          acceptedTextRef.current = visibleSuggestion;
+          acceptedAtRef.current = Date.now();
           patchLastRun(sessionId, { suggestion: suggestion, accepted: true });
           suggestionHistoryRef.current = [];
           historyIndexRef.current = 0;
@@ -710,10 +722,22 @@
             typedDuringRequest.current = true;
             setTypedTick(function (n) { return n + 1; });
           }
-          if (event.key !== "Tab" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
-          if (!accept()) return;
-          event.preventDefault();
-          event.stopPropagation();
+          // lokal: принять подсказку можно Enter, Tab или →.
+          var isAcceptKey = event.key === "Enter" || event.key === "Tab" || event.key === "ArrowRight";
+          if (!isAcceptKey || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+          if (accept()) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+          // Режим «только по Tab»: Tab в пустом поле считает подсказку (вставка — следующим Tab).
+          if (event.key === "Tab" && !autoMode && !running && draft.trim() === "" && !pastedAttachment
+            && !hasInputAttachments() && !hasForeignDraft(sessionId)) {
+            if (runRequest(false)) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }
         };
         // 除了可打印键，粘贴 / 输入法合成 / 任何文本输入 / 拖拽落字 也算「用户开始输入」。
         // 只监听 keydown 的话，中文输入法（key=Process）和 Cmd+V 都躲得过去，灰字会压在正文上。
@@ -734,7 +758,60 @@
           inputEvents.forEach(function (type) { inputTarget.removeEventListener(type, hideOnInput, true); });
           window.removeEventListener("keydown", onKey, true);
         };
-      }, [visibleSuggestion, accept, switchEnabled, sessionId]);
+      }, [visibleSuggestion, accept, switchEnabled, sessionId, autoMode, running, draft, pastedAttachment]);
+
+      // lokal: второе нажатие Enter/Tab/→ сразу после принятия отправляет сообщение —
+      // так же, как в прежней сборке. Слушатель живёт всегда: после accept() подсказка
+      // исчезает, и эффект выше со своим onKey размонтируется.
+      useEffect(function () {
+        var sendComposer = function () {
+          if (inputActions && typeof inputActions.submit === "function") {
+            try { inputActions.submit(); return true; } catch { /* пробуем запасные пути */ }
+          }
+          var ed = findEditor(sessionId);
+          if (ed) {
+            try {
+              ed.focus();
+              ed.dispatchEvent(new KeyboardEvent("keydown", {
+                key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true,
+              }));
+              return true;
+            } catch { /* ниже — кнопка отправки */ }
+          }
+          try {
+            var scope = findComposerScope(sessionId) || document;
+            var buttons = scope.querySelectorAll("button");
+            for (var i = 0; i < buttons.length; i += 1) {
+              var node = buttons[i];
+              var label = String(node.getAttribute("aria-label") || "") + " " + String(node.title || "");
+              if (/отправ|send|发送/i.test(label)) { node.click(); return true; }
+            }
+          } catch { /* кнопки не нашли — просто не отправляем */ }
+          return false;
+        };
+        var onSecond = function (event) {
+          if (event.isComposing) return;
+          if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+          var key = event.key;
+          if (key !== "Enter" && key !== "Tab" && key !== "ArrowRight") return;
+          var text = acceptedTextRef.current;
+          if (!text) return;
+          // Окно двойного нажатия: долгая пауза — уже обычная отправка/навигация.
+          if (Date.now() - acceptedAtRef.current > 1500) { acceptedTextRef.current = ""; return; }
+          if (!isComposerFocused(sessionId, event)) return;
+          // Если текст редактора читается и уже другой — пользователь начал править, не отправляем.
+          var current = editorText(sessionId);
+          if (current && current !== text) { acceptedTextRef.current = ""; return; }
+          acceptedTextRef.current = "";
+          acceptedAtRef.current = 0;
+          if (sendComposer()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        };
+        window.addEventListener("keydown", onSecond, true);
+        return function () { window.removeEventListener("keydown", onSecond, true); };
+      }, [sessionId, inputActions]);
 
       // 建议直接以灰色 ghost text 覆盖在 Lexical 输入框首字符处。
       if (!enabled) return null;
