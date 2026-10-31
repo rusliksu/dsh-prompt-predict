@@ -408,11 +408,14 @@ await typingDock.settle(3);
 check('草稿删空后 ghost 自动恢复', hiddenWhileTyping && hasGhost(typingDock.tree),
   `打字时隐藏=${hiddenWhileTyping} 清空后出现=${hasGhost(typingDock.tree)}`);
 
-// lokal: строку подсказок убрали — в ghost остаётся только текст предложения.
+// lokal: строки хинтов нет, но осталась одна кнопка смены подсказки (↻).
 const labels = find(dock.tree, (n) => typeof n.props?.children === 'string').map((n) => n.props.children);
-check('ghost без подсказок клавиш Tab / ↻ / Esc',
-  !labels.includes('Tab') && !labels.includes('↻') && !labels.some((t) => /Esc|Enter|↓/.test(t)),
+check('ghost без строки хинтов Tab / Esc / ↓',
+  !labels.includes('Tab') && !labels.some((t) => /Esc|Enter|↓/.test(t)),
   labels.filter((t) => t.length < 14).join(' | '));
+const rerollBtn = find(dock.tree, (n) => n.type === 'button' && n.props && n.props['data-prompt-predict-reroll'] === 'true')[0];
+check('в ghost есть кнопка смены подсказки', Boolean(rerollBtn) && rerollBtn.props['aria-label'].length > 0,
+  String(rerollBtn && rerollBtn.props['aria-label']));
 
 // ③b 长建议必须完整可见：宽度跟随输入框内容区、允许折行，且子树里不能有省略号截断
 const ghostNode = find(dock.tree, (n) => n.props && n.props['data-prompt-predict-ghost'] === 'true')[0];
@@ -1912,8 +1915,8 @@ check('最近预测不再重复显示在状态行',
   const dock = mount(inst.react, inst.registered['conversation.composer.dock'].Component, () => makeProps(''));
   await dock.settle();
   const reroll = find(dock.tree, (n) => n.type === 'button' && n.props?.children === '↻')[0];
-  // lokal: строку подсказок убрали — кнопки reroll в ghost больше нет, смена по ↓.
-  check('в ghost нет кнопки reroll (подсказки убраны)', !reroll, String(Boolean(reroll)));
+  // lokal: кнопка смены подсказки вернулась как самодостаточный контрол — у неё есть имя.
+  check('ghost 的 reroll 按钮有 aria-label', Boolean(reroll?.props?.['aria-label']), String(reroll?.props?.['aria-label']));
   const settingsView = mount(inst.react, inst.registered['settings.section'].Component, () => ({}));
   await settingsView.settle();
   const advanced = find(settingsView.tree, (n) => n.type === 'button' && /高级/.test(String(n.props?.children)))[0];
@@ -1993,9 +1996,10 @@ for (const [lang, expect] of [
     String(ghostText?.props?.style?.color || '').startsWith('var(--dsw-alias-label-tertiary')
     && String(ghostText?.props?.style?.color).includes('#6b7280'),
     String(ghostText?.props?.style?.color));
-  check('в ghost не осталось кнопок-подсказок',
-    find(ghost, (n) => n.type === 'button').length === 0,
-    'buttons=' + find(ghost, (n) => n.type === 'button').length);
+  const ghostButtons = find(ghost, (n) => n.type === 'button');
+  check('в ghost ровно одна кнопка — смена подсказки',
+    ghostButtons.length === 1 && ghostButtons[0].props['data-prompt-predict-reroll'] === 'true',
+    'buttons=' + ghostButtons.length);
 }
 
 // 修复 1：粘贴 / 输入法 / 拖拽 也要让 ghost 消失（只监听 keydown 会漏）

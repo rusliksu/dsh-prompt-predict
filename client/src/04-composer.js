@@ -83,6 +83,9 @@
       }
       var applySuggestionEvent = function (event, isReroll, manual) {
         if (!event || controllerAborted()) return;
+        // lokal: подсказка уже висит в поле — автоматический ответ её не заменяет,
+        // используется старая. Пересчёт только по явному действию (↓ / ↻ / Ctrl+Shift+Space).
+        if (!isReroll && !manual && visibleSuggestion) return;
         if (event.type === "start" || event.type === "reset") {
           setManualError("");
           // 不要在这里 endBusy：模型可能还要好几秒才吐第一个字，
