@@ -1656,6 +1656,40 @@ check('设置页列出最近预测（含会话标题）',
   check('恢复成功后提示消失', !hasHint(), '');
 }
 
+// Авто-повтор после сбоя: одиночный таймаут не должен оставлять поле пустым
+{
+  const inst = setup();
+  const C = inst.registered['conversation.composer.dock'].Component;
+  const suggestSeen = () => inst.env.fetchCalls.filter((c) => c.url.includes('/suggest')).length;
+  const flaky = { suggestion: 'подсказка со второй попытки', reason: '模型调用超时' };
+  // Первый /suggest отвечает ошибкой, повторный — успехом: значение зависит от числа
+  // уже случившихся запросов, а не от числа чтений поля ok в одном ответе.
+  Object.defineProperty(flaky, 'ok', { enumerable: true, get() { return suggestSeen() > 1; } });
+  fetchResult = flaky;
+  const view = mount(inst.react, C, () => makeProps(''));
+  await view.settle(10);
+  check('после сбоя клиент сам повторяет запрос', suggestSeen() === 2, `calls=${suggestSeen()}`);
+  check('повторная попытка возвращает подсказку',
+    /подсказка со второй попытки/.test(textOf(view.tree)), textOf(view.tree).slice(0, 60));
+  await view.settle(6);
+  check('после успешного повтора лишних запросов нет', suggestSeen() === 2, `calls=${suggestSeen()}`);
+  fetchResult = { suggestion: '先补测试再实现', version: '9.9.9' };
+}
+
+// Сбои подряд: клиент делает две повторные попытки и останавливается
+{
+  const inst = setup();
+  const C = inst.registered['conversation.composer.dock'].Component;
+  const suggestSeen = () => inst.env.fetchCalls.filter((c) => c.url.includes('/suggest')).length;
+  fetchResult = { ok: false, reason: '模型调用超时' };
+  const view = mount(inst.react, C, () => makeProps(''));
+  await view.settle(12);
+  check('после сбоя — ровно две повторные попытки', suggestSeen() === 3, `calls=${suggestSeen()}`);
+  await view.settle(10);
+  check('исчерпав повторы, клиент ждёт следующего хода', suggestSeen() === 3, `calls=${suggestSeen()}`);
+  fetchResult = { suggestion: '先补测试再实现', version: '9.9.9' };
+}
+
 // 历史记录：清空 + 复制
 {
   const seeds = [

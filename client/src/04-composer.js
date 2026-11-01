@@ -38,6 +38,10 @@
       var switchCountRef = useRef(0);
       var _swnt = useState(""), switchNotice = _swnt[0], setSwitchNotice = _swnt[1];
       var armed = useRef(true);
+      // Авто-повтор после сбоя: сколько раз уже повторяли в этом ходу и таймер паузы.
+      var retryCountRef = useRef(0);
+      var retryTimerRef = useRef(null);
+      var _rt = useState(0), retryTick = _rt[0], setRetryTick = _rt[1];
       var abortRef = useRef(null);
       var sessionRef = useRef(sessionId);
       var dismissedByDraft = useRef(false);
@@ -81,7 +85,7 @@
         composingRef.current = false;
         return false;
       }
-      var applySuggestionEvent = function (event, isReroll, manual) {
+      var applySuggestionEvent = function (event, isReroll, manual, isRetry) {
         if (!event || controllerAborted()) return;
         // lokal: подсказка уже висит в поле — автоматический ответ её не заменяет,
         // используется старая. Пересчёт только по явному действию (↓ / ↻ / Ctrl+Shift+Space).
@@ -145,6 +149,8 @@
           setSwitchNotice("");
           setSuggestion(fullSuggestion);
           setTruncated(Boolean(event.truncated));
+          retryCountRef.current = 0;
+          cancelAutoRetry();
           noteSuccess();
           recordRun(sessionId, Object.assign({}, event, { suggestion: fullSuggestion }), null, sessionTitle);
           return;
@@ -157,9 +163,48 @@
           setTruncated(false);
           var reason = event.reason || tt(t, isReroll ? "dock.rerollFailed" : "dock.noSuggestion");
           if (manual) { setManualError(reason); setManualErrorKind("failed"); }
-          noteFailure(sessionId, reason);
+          // Счётчик «подряд не получилось» считает ходы, а не внутренние попытки:
+          // иначе один таймаут с авто-повтором сразу показал бы подсказку о сбое.
+          if (!isRetry) noteFailure(sessionId, reason);
           recordRun(sessionId, null, reason, sessionTitle, { partialChars: event.partialChars });
         }
+      };
+      // Авто-повтор после сбоя. Раньше armed снимался перед запросом и не возвращался
+      // при ошибке: одна неудача (таймаут, отказ провайдера, обрезанный ответ) глушила
+      // подсказки до конца хода. Теперь после ошибки делаем до двух повторных попыток
+      // с нарастающей паузой; смена сессии, начало хода, пауза и ввод текста их снимают.
+      var AUTO_RETRY_DELAYS = [3000, 8000];
+      var cancelAutoRetry = function () {
+        if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+      };
+      var canAutoRetry = function () {
+        if (!enabled || !autoMode || isPaused()) return false;
+        if (!sessionId || blank || removed) return false;
+        if (visibleSuggestion) return false;
+        if (isComposingNow() || typedSince.current || typedDuringRequest.current) return false;
+        if (pastedAttachment || hasInputAttachments() || draft.trim() !== "" || hasForeignDraft(sessionId)) return false;
+        return true;
+      };
+      var scheduleAutoRetry = function () {
+        if (retryCountRef.current >= AUTO_RETRY_DELAYS.length) return false;
+        if (!canAutoRetry()) return false;
+        var delay = AUTO_RETRY_DELAYS[retryCountRef.current];
+        retryCountRef.current += 1;
+        cancelAutoRetry();
+        retryTimerRef.current = setTimeout(function () {
+          retryTimerRef.current = null;
+          if (!canAutoRetry()) {
+            // Условия не подходят (печатают, вложения, пауза, начался ход):
+            // не повторяем сейчас, но снова разрешаем автоподсказку — иначе после
+            // одного сбоя пустое поле оставалось бы без подсказки до конца хода.
+            retryCountRef.current = 0;
+            armed.current = true;
+            return;
+          }
+          armed.current = true;
+          setRetryTick(function (n) { return n + 1; });
+        }, delay);
+        return true;
       };
       var endBusy = function () {
         if (busyTimerRef.current) { clearTimeout(busyTimerRef.current); busyTimerRef.current = null; }
@@ -345,6 +390,8 @@
       useEffect(function () {
         sessionRef.current = sessionId;
         setLiveSessionId(sessionId);   // 给设置页取「会话实际模型」用（跨模块实例共享）
+        retryCountRef.current = 0;
+        cancelAutoRetry();
         armed.current = true;
         dismissedByDraft.current = false;
         setSuggestion("");
@@ -355,10 +402,12 @@
       }, [sessionId]);
 
       useEffect(function () {
-        if (!enabled) return;
+        if (!enabled) { cancelAutoRetry(); return; }
         // Режим «только по Tab»: автоподсказку не считаем, ждём Tab в поле ввода.
-        if (!autoMode) return;
+        if (!autoMode) { cancelAutoRetry(); return; }
         if (running) {
+          retryCountRef.current = 0;
+          cancelAutoRetry();
           armed.current = true;
           dismissedByDraft.current = false;
           setPastedAttachment(false);
@@ -374,13 +423,17 @@
         if (!sessionId || blank || removed || !armed.current || isPaused()) return;
         if (pastedAttachment || hasInputAttachments() || draft.trim() !== "" || hasForeignDraft(sessionId)) return;
         armed.current = false;
+        // Повторная попытка (retryCountRef уже увеличен планировщиком): её сбой
+        // не должен считаться вторым сбоем хода.
+        var isRetryAttempt = retryCountRef.current > 0;
         var controller = new AbortController();
         abortRef.current = controller;
         var timer = setTimeout(function () {
           var finished = false;
           var onEvent = function (event) {
             if (event && (event.type === "done" || event.type === "error")) finished = true;
-            applySuggestionEvent(event, false);
+            applySuggestionEvent(event, false, false, isRetryAttempt);
+            if (event && event.type === "error") scheduleAutoRetry();
           };
           typedDuringRequest.current = false;
           beginBusy();
@@ -389,7 +442,7 @@
               if (!finished && result) {
                 applySuggestionEvent(result.ok
                   ? Object.assign({ type: "done" }, result)
-                  : Object.assign({ type: "error" }, result), false);
+                  : Object.assign({ type: "error" }, result), false, false, isRetryAttempt);
               }
             })
             .catch(function (error) {
@@ -397,8 +450,9 @@
               if (controller.signal.aborted) return;
               setSuggestion("");
               setTruncated(false);
-              noteFailure(sessionId, String(error));
+              if (!isRetryAttempt) noteFailure(sessionId, String(error));
               recordRun(sessionId, null, String(error), sessionTitle);
+              scheduleAutoRetry();
             });
         }, 350);
         return function () {
@@ -407,7 +461,7 @@
           controller.abort();
           if (abortRef.current === controller) abortRef.current = null;
         };
-      }, [sessionId, running, blank, removed, draft, enabled, autoMode, draftTick]);
+      }, [sessionId, running, blank, removed, draft, enabled, autoMode, draftTick, retryTick]);
 
       // 直接盯编辑器 DOM：贴图、删图、打字、拖拽都会触发；不依赖 input 事件与正文可读性。
       // 只要我们自己的插入不在进行中，任何内容变化都立刻收起建议。
@@ -571,7 +625,10 @@
         return function () { clearInterval(id); };
       }, []);
       useEffect(function () {
-        return function () { if (busyTimerRef.current) clearTimeout(busyTimerRef.current); };
+        return function () {
+          if (busyTimerRef.current) clearTimeout(busyTimerRef.current);
+          cancelAutoRetry();
+        };
       }, []);
       useEffect(function () {
         var onPause = function (event) {
@@ -580,6 +637,7 @@
           pausedUntil = until > Date.now() ? until : 0;
           if (until > Date.now()) {
             armed.current = false;
+            cancelAutoRetry();
             if (abortRef.current) abortRef.current.abort();
             endBusy();
             setSuggestion("");

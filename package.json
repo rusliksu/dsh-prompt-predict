@@ -1,6 +1,6 @@
 {
   "name": "dsh-prompt-predict",
-  "version": "0.2.10-ruslan.7",
+  "version": "0.2.10-ruslan.8",
   "description": "Форк dsh-prompt-predict для DeepSeek Harness: предзагрузка подсказки в конце хода, свой системный промпт и доп. инструкции, режим «только по Tab», принятие по Enter/Tab/→ и отправка вторым нажатием, русский интерфейс ｜ Fork of dsh-prompt-predict: host-side prefetch, custom prompt settings, Enter/Tab/→ accept with send-on-second-press, Russian UI.",
   "type": "module",
   "main": "lib/index.js",
