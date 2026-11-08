@@ -5,6 +5,9 @@
 > Что добавлено — в разделе [«Что даёт этот форк»](#-что-даёт-этот-форк--what-this-build-adds).
 > С автором апстрима не связан.
 
+Репозиторий: [rusliksu/dsh-prompt-predict](https://github.com/rusliksu/dsh-prompt-predict) (public; ветка
+`ruslan-build`, она же default).
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/ferrisching/dsh-prompt-predict/main/docs/logo.png" width="120" height="120" alt="dsh-prompt-predict logo" />
 </div>
